@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction ข้อสอบ ป.ธ.๓ พ.ศ. ๒๕๖๙</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brown: #8B4513;
+            --brown-light: #A0522D;
+            --brown-lighter: #D2B48C;
+            --brown-bg: #FFF8DC;
+            --gold: #DAA520;
+            --gold-light: #F5DEB3;
+            --green: #2E8B57;
+            --green-light: #3CB371;
+            --green-bg: #E8F5E9;
+            --red: #D32F2F;
+            --red-light: #FFCDD2;
+            --blue: #1565C0;
+            --blue-light: #BBDEFB;
+            --orange: #E65100;
+            --orange-light: #FFE0B2;
+            --bg: #FAF3E8;
+            --card-bg: #FFFFFF;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #E0D5C5;
+            --shadow: rgba(139, 69, 19, 0.12);
+        }
+
+        body {
+            font-family: 'Sarabun', 'Tahoma', sans-serif;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* ===== HEADER ===== */
+        .page-header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 50%, var(--green) 100%);
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .page-header h1 {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        .page-header .subtitle {
+            font-size: 1.15em;
+            opacity: 0.92;
+            font-weight: 300;
+        }
+        .page-header .date-line {
+            font-size: 0.9em;
+            opacity: 0.75;
+            margin-top: 10px;
+        }
+
+        /* ===== SECTION CARDS ===== */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 12px var(--shadow);
+            margin-bottom: 28px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .section-header {
+            background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
+            color: white;
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-header.green-header {
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+        }
+        .section-header .section-num {
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95em;
+            flex-shrink: 0;
+        }
+        .section-header h2 {
+            font-size: 1.25em;
+            font-weight: 600;
+        }
+        .section-body {
+            padding: 22px 26px;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.98em;
+        }
+        th {
+            background: var(--brown);
+            color: white;
+            padding: 10px 14px;
+            text-align: center;
+            font-weight: 600;
+        }
+        td {
+            padding: 9px 14px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:nth-child(even) td {
+            background: var(--brown-bg);
+        }
+        tr.prediction-row td {
+            background: #FFF9C4;
+            font-weight: 700;
+            color: var(--brown);
+            font-size: 1.05em;
+        }
+
+        /* ===== BAR CHART (CSS ONLY) ===== */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 24px;
+            justify-content: center;
+            padding: 20px 0 10px;
+            height: 240px;
+        }
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 180px;
+        }
+        .bar-value {
+            font-weight: 700;
+            font-size: 1.3em;
+            color: var(--brown);
+            margin-bottom: 6px;
+        }
+        .bar {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s ease;
+            position: relative;
+            min-height: 20px;
+        }
+        .bar-begin { background: linear-gradient(180deg, var(--green), var(--green-light)); }
+        .bar-mid { background: linear-gradient(180deg, #9E9E9E, #BDBDBD); }
+        .bar-end { background: linear-gradient(180deg, var(--brown), var(--brown-light)); }
+        .bar-label {
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 0.95em;
+            color: var(--text);
+            text-align: center;
+        }
+        .bar-sublabel {
+            font-size: 0.82em;
+            color: var(--text-light);
+        }
+
+        /* ===== INSIGHT BOX ===== */
+        .insight-box {
+            background: linear-gradient(135deg, #FFF8E1, #FFF3E0);
+            border-left: 4px solid var(--gold);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+            font-size: 0.98em;
+            line-height: 1.8;
+        }
+        .insight-box strong {
+            color: var(--brown);
+        }
+
+        /* ===== VOICE PATTERN TABLE ===== */
+        .voice-table {
+            margin: 16px 0;
+        }
+        .voice-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+        .voice-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .badge-hk { background: var(--orange-light); color: var(--orange); }
+        .badge-m { background: var(--blue-light); color: var(--blue); }
+        .badge-k { background: var(--green-bg); color: var(--green); }
+
+        /* ===== CANDIDATE CARDS ===== */
+        .candidate-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .candidate-card:hover {
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        .candidate-header {
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .candidate-header.rank-1 { background: linear-gradient(90deg, #FFCDD2, #FFEBEE); border-left: 5px solid var(--red); }
+        .candidate-header.rank-2 { background: linear-gradient(90deg, #FFE0B2, #FFF3E0); border-left: 5px solid var(--orange); }
+        .candidate-header.rank-3 { background: linear-gradient(90deg, #FFE0B2, #FFF3E0); border-left: 5px solid var(--orange); }
+        .candidate-header.rank-4 { background: linear-gradient(90deg, #FFE0B2, #FFF3E0); border-left: 5px solid var(--orange); }
+        .candidate-header.rank-5 { background: linear-gradient(90deg, #FFE0B2, #FFF3E0); border-left: 5px solid var(--orange); }
+        .candidate-header.rank-6 { background: linear-gradient(90deg, #FFE0B2, #FFF3E0); border-left: 5px solid var(--orange); }
+        .candidate-header.rank-7 { background: linear-gradient(90deg, #FFF9C4, #FFFDE7); border-left: 5px solid var(--gold); }
+        .candidate-header.rank-8 { background: linear-gradient(90deg, #FFF9C4, #FFFDE7); border-left: 5px solid var(--gold); }
+        .candidate-header.rank-9 { background: linear-gradient(90deg, #FFF9C4, #FFFDE7); border-left: 5px solid var(--gold); }
+        .candidate-header.rank-10 { background: linear-gradient(90deg, #FFF9C4, #FFFDE7); border-left: 5px solid var(--gold); }
+        .candidate-rank {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--brown);
+            width: 36px;
+            text-align: center;
+        }
+        .candidate-name {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: var(--brown);
+        }
+        .candidate-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.82em;
+            font-weight: 600;
+            background: var(--brown-bg);
+            color: var(--brown);
+            border: 1px solid var(--brown-lighter);
+        }
+        .candidate-body {
+            padding: 12px 18px 16px;
+            font-size: 0.95em;
+            color: var(--text-light);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .candidate-stat {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #F5F5F5;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        .candidate-stat .stat-label { color: var(--text-light); }
+        .candidate-stat .stat-value { font-weight: 700; color: var(--text); }
+        .candidate-note {
+            width: 100%;
+            padding: 8px 12px;
+            background: #FFF8E1;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: var(--brown);
+        }
+
+        /* ===== SCOPED BADGE & SCOPE RANGE (NEW) ===== */
+        .scoped-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.82em;
+            font-weight: 700;
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid #A5D6A7;
+        }
+        .scope-range {
+            width: 100%;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-left: 4px solid var(--green);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95em;
+            color: #1B5E20;
+            line-height: 1.6;
+        }
+        .scope-range strong {
+            color: #1B5E20;
+        }
+
+        /* ===== HISTOGRAM BARS (NEW) ===== */
+        .histogram {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            padding: 16px 0 4px;
+            height: 140px;
+        }
+        .histogram-bar {
+            flex: 1;
+            border-radius: 3px 3px 0 0;
+            min-height: 4px;
+            position: relative;
+        }
+        .histogram-bar.in-range {
+            background: linear-gradient(180deg, var(--green), var(--green-light));
+        }
+        .histogram-bar.out-range {
+            background: linear-gradient(180deg, #E0E0E0, #EEEEEE);
+        }
+        .histogram-labels {
+            display: flex;
+            gap: 3px;
+            padding-top: 4px;
+        }
+        .histogram-labels span {
+            flex: 1;
+            text-align: center;
+            font-size: 0.72em;
+            color: var(--text-light);
+        }
+        .histogram-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 0.88em;
+            justify-content: center;
+        }
+        .histogram-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        .legend-dot.in { background: var(--green); }
+        .legend-dot.out { background: #E0E0E0; }
+
+        /* ===== USA FOLLOW LIST ===== */
+        .usa-list {
+            list-style: none;
+            padding: 0;
+        }
+        .usa-list li {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .usa-list li:last-child { border-bottom: none; }
+        .usa-flag {
+            font-size: 0.8em;
+            background: #E3F2FD;
+            color: var(--blue);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* ===== DEP-ARC SENTENCE DISPLAY ===== */
+        .dep-arc-container {
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 18px 0;
+            overflow-x: auto;
+        }
+        .dep-arc-title {
+            font-weight: 700;
+            color: var(--brown);
+            margin-bottom: 14px;
+            font-size: 1.05em;
+        }
+        .dep-arc-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .dep-word {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+            position: relative;
+        }
+        .dep-word-box {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid #DDD;
+            background: white;
+            white-space: nowrap;
+            position: relative;
+        }
+        .dep-word-box.role-verb {
+            background: var(--red);
+            color: white;
+            border-color: #B71C1C;
+        }
+        .dep-word-box.role-hk {
+            background: var(--blue);
+            color: white;
+            border-color: #0D47A1;
+        }
+        .dep-word-box.role-karita {
+            background: var(--orange);
+            color: white;
+            border-color: #BF360C;
+        }
+        .dep-word-box.role-normal {
+            background: white;
+            border-color: var(--brown-lighter);
+            color: var(--brown);
+        }
+        .dep-role {
+            font-size: 0.72em;
+            color: var(--text-light);
+            margin-top: 5px;
+            text-align: center;
+            line-height: 1.3;
+            max-width: 110px;
+        }
+        .dep-arrow {
+            font-size: 0.7em;
+            color: #999;
+            margin-top: 2px;
+        }
+        .thai-translation {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+            font-size: 1.05em;
+            color: var(--green);
+            line-height: 1.8;
+        }
+        .pattern-box {
+            background: #E8EAF6;
+            border-left: 4px solid #3F51B5;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+            font-size: 0.95em;
+        }
+        .pattern-box code {
+            background: rgba(63, 81, 181, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Sarabun', monospace;
+            font-weight: 600;
+        }
+
+        /* ===== SUMMARY BOX ===== */
+        .summary-card {
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .summary-header {
+            background: linear-gradient(135deg, var(--gold), #F9A825);
+            color: white;
+            padding: 14px 22px;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .summary-body {
+            padding: 22px 26px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .summary-block {
+            background: #FAFAFA;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+        .summary-block h4 {
+            color: var(--brown);
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--brown-lighter);
+        }
+        .summary-block ul {
+            list-style: none;
+            padding: 0;
+        }
+        .summary-block li {
+            padding: 5px 0;
+            line-height: 1.6;
+        }
+        .summary-block li::before {
+            content: '\25B8';
+            color: var(--brown);
+            margin-right: 8px;
+        }
+        .priority-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: priority;
+        }
+        .priority-list li {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+        }
+        .priority-list li:last-child { border-bottom: none; }
+        .priority-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .priority-dot.critical { background: var(--red); }
+        .priority-dot.high { background: var(--orange); }
+        .priority-dot.medium { background: var(--gold); }
+        .confidence-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.82em;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+        .conf-high { background: #C8E6C9; color: #2E7D32; }
+        .conf-mid { background: #FFF9C4; color: #F57F17; }
+
+        /* ===== DISCLAIMER ===== */
+        .disclaimer {
+            text-align: center;
+            padding: 16px 20px;
+            background: #EFEBE9;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #795548;
+            border: 1px dashed #BCAAA4;
+        }
+
+        /* ===== CONNECTOR LINES FOR DEP-ARC ===== */
+        .dep-connector {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            align-self: center;
+        }
+        .dep-connector::after {
+            content: '\2192';
+            color: #AAA;
+            font-size: 1.2em;
+        }
+
+        /* ===== DATA SNAPSHOT (NEW) ===== */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+        .data-item {
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+        .data-item .data-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--brown);
+        }
+        .data-item .data-label {
+            font-size: 0.85em;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* ===== BOOK GROUP (NEW) ===== */
+        .book-group {
+            margin-bottom: 18px;
+        }
+        .book-group-title {
+            font-weight: 700;
+            color: var(--brown);
+            padding: 8px 14px;
+            background: var(--brown-bg);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 1.02em;
+            border-left: 4px solid var(--brown);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .page-header { padding: 24px 14px 20px; }
+            .page-header h1 { font-size: 1.5em; }
+            .section-body { padding: 16px; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .bar-chart { height: 200px; gap: 14px; }
+            .dep-arc-words { gap: 5px; }
+            .dep-word { min-width: 55px; }
+            .dep-word-box { padding: 6px 8px; font-size: 0.92em; }
+            table { font-size: 0.88em; }
+            th, td { padding: 6px 8px; }
+            .data-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                font-size: 11pt;
+                max-width: 100%;
+            }
+            .page-header {
+                background: var(--brown) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-after: avoid;
+            }
+            .section-card {
+                box-shadow: none;
+                border: 1px solid #CCC;
+                page-break-inside: avoid;
+            }
+            .section-header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .candidate-card { page-break-inside: avoid; }
+            .dep-arc-container { page-break-inside: avoid; }
+            th {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .bar {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .dep-word-box.role-verb,
+            .dep-word-box.role-hk,
+            .dep-word-box.role-karita {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .priority-dot {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .histogram-bar {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .scoped-badge, .scope-range {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* ===== MISC ===== */
+        h3 { color: var(--brown); margin: 18px 0 10px; font-size: 1.1em; }
+        p { margin-bottom: 10px; }
+        strong { color: var(--text); }
+        .text-brown { color: var(--brown); }
+        .text-green { color: var(--green); }
+        .text-red { color: var(--red); }
+        .text-blue { color: var(--blue); }
+        .text-orange { color: var(--orange); }
+        .text-muted { color: var(--text-light); font-size: 0.9em; }
+        .mt-1 { margin-top: 10px; }
+        .mt-2 { margin-top: 20px; }
+        .mb-1 { margin-bottom: 10px; }
+        .mb-2 { margin-bottom: 20px; }
+        hr.divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 18px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="page-header">
+    <h1>Prediction ข้อสอบ ป.ธ.๓ พ.ศ. ๒๕๖๙</h1>
+    <div class="subtitle">วิเคราะห์จากสถิติข้อสอบ ๒๓๐ ข้อ (พ.ศ. ๒๕๒๙ &ndash; ๒๕๖๘) &mdash; 10 เรื่องเก็ง พร้อม scoped exam range</div>
+    <div class="date-line">สร้างเมื่อ ๘ กุมภาพันธ์ ๒๕๖๙</div>
+</header>
+
+<!-- ===== SECTION 1: DISCLAIMER AT TOP ===== -->
+<div class="disclaimer mb-2">
+    วิเคราะห์จากสถิติย้อนหลัง ไม่ใช่ข้อสอบจริง &mdash; ใช้เป็นแนวทางในการเตรียมตัวเท่านั้น
+</div>
+
+<!-- ===== SECTION 2: CYCLE ANALYSIS ===== -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-num">1</div>
+        <h2>Cycle Analysis &mdash; ภาคที่น่าจะออก (สนามไทย)</h2>
+    </div>
+    <div class="section-body">
+        <p>วิเคราะห์รูปแบบวงรอบภาคที่ออกสอบ สัมพันธ์และแปล ย้อนหลัง 5 ปี</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ปี (พ.ศ.)</th>
+                    <th>สัมพันธ์ (ภาค)</th>
+                    <th>แปล (ภาค)</th>
+                    <th>หมายเหตุ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>๒๕๖๔</td>
+                    <td>8</td>
+                    <td>7</td>
+                    <td class="text-muted">ภาคสูง</td>
+                </tr>
+                <tr>
+                    <td>๒๕๖๕</td>
+                    <td>5</td>
+                    <td>5</td>
+                    <td class="text-muted">reset ลงมาภาคต้น</td>
+                </tr>
+                <tr>
+                    <td>๒๕๖๖</td>
+                    <td>8</td>
+                    <td>7</td>
+                    <td class="text-muted">กลับขึ้นภาคสูง</td>
+                </tr>
+                <tr>
+                    <td>๒๕๖๗</td>
+                    <td>7</td>
+                    <td>6</td>
+                    <td class="text-muted">ลดลงเล็กน้อย</td>
+                </tr>
+                <tr>
+                    <td>๒๕๖๘</td>
+                    <td>8</td>
+                    <td>7</td>
+                    <td class="text-muted">กลับขึ้นสูงอีกครั้ง</td>
+                </tr>
+                <tr class="prediction-row">
+                    <td>๒๕๖๙</td>
+                    <td>5 หรือ 6 ?</td>
+                    <td>5 หรือ 8 ?</td>
+                    <td style="font-size:0.9em">คาดการณ์</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="insight-box">
+            <strong>วิเคราะห์วงรอบ:</strong> รูปแบบเดินตาม 5 &rarr; 6 &rarr; 7 &rarr; 8 แล้ว reset กลับลงมา
+            <br>หลังจากปี ๒๕๖๘ (สัมพันธ์=8, แปล=7) ถึงจุด reset:
+            <ul style="margin-top:8px; padding-left:20px;">
+                <li><strong class="text-brown">สัมพันธ์:</strong> ภาค 5 หรือ 6 (reset cycle หลังจาก 8)</li>
+                <li><strong class="text-green">แปล:</strong> ภาค 5 หรือ 8 (ตาม pattern ของสัมพันธ์ หรือภาคข้างเคียง)</li>
+            </ul>
+            <p class="mt-1"><strong>Confidence:</strong> <span class="confidence-badge conf-high">ภาค 5/6 สัมพันธ์ 80%</span> <span class="confidence-badge conf-mid">ภาค 5 หรือ 8 แปล 70%</span></p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 3: U-SHAPE PAGE POSITION ===== -->
+<div class="section-card">
+    <div class="section-header green-header">
+        <div class="section-num">2</div>
+        <h2>Page Position Analysis &mdash; U-Shape Distribution</h2>
+    </div>
+    <div class="section-body">
+        <p>ตำแหน่งหน้าที่เรื่องออกสอบ วิเคราะห์เป็น 3 ช่วง แสดงรูปแบบตัว U ชัดเจน:</p>
+
+        <div class="bar-chart">
+            <div class="bar-group">
+                <div class="bar-value">43%</div>
+                <div class="bar bar-begin" style="height: 160px;"></div>
+                <div class="bar-label">ต้นเล่ม</div>
+                <div class="bar-sublabel">หน้า 1-33%</div>
+            </div>
+            <div class="bar-group">
+                <div class="bar-value">23%</div>
+                <div class="bar bar-mid" style="height: 86px;"></div>
+                <div class="bar-label">กลางเล่ม</div>
+                <div class="bar-sublabel">หน้า 34-66%</div>
+            </div>
+            <div class="bar-group">
+                <div class="bar-value">34%</div>
+                <div class="bar bar-end" style="height: 126px;"></div>
+                <div class="bar-label">ท้ายเล่ม</div>
+                <div class="bar-sublabel">หน้า 67-100%</div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>Key Insight:</strong> กลางเล่มเป็น dead zone &mdash; ข้อสอบชอบออกต้นหรือท้ายเล่ม
+            แต่ปีล่าสุดสัมพันธ์ shift มาต้น-กลาง ดังนั้นเรื่องที่อยู่ในช่วง dead zone ที่ยังไม่เคยออก มีโอกาสถูกหยิบมาใช้ได้
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 4: VOICE PATTERN ===== -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-num">3</div>
+        <h2>วาจกพิเศษ (Voice Pattern) &mdash; The Key Differentiator</h2>
+    </div>
+    <div class="section-body">
+        <p>ข้อสอบ ป.ธ.๓ ส่วนใหญ่ใช้กตฺตุวาจก (active voice) เป็นหลัก แต่สิ่งที่ทำให้เรื่องยากขึ้นคือ <strong>เหตุกตฺตุวาจก</strong> ซึ่งเป็น trend ขาขึ้นอย่างชัดเจน:</p>
+
+        <table class="voice-table mt-1">
+            <thead>
+                <tr>
+                    <th style="text-align:left;">วาจก</th>
+                    <th>ลักษณะ</th>
+                    <th>ความถี่</th>
+                    <th>Trend</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align:left;">กตฺตุวาจก <span class="voice-badge badge-k">K</span></td>
+                    <td>ประธานทำเอง (active)</td>
+                    <td>90%+</td>
+                    <td class="text-muted">คงที่</td>
+                </tr>
+                <tr>
+                    <td style="text-align:left;"><strong>เหตุกตฺตุวาจก</strong> <span class="voice-badge badge-hk">HK</span></td>
+                    <td>ใช้กริยาเหตุ (ให้...ทำ)</td>
+                    <td>~10-15%</td>
+                    <td><strong class="text-red">ขาขึ้น</strong></td>
+                </tr>
+                <tr>
+                    <td style="text-align:left;">กมฺมวาจก <span class="voice-badge badge-m">M</span></td>
+                    <td>กริยา passive (ถูกทำ)</td>
+                    <td>หายาก</td>
+                    <td class="text-muted">นานๆ ออกที</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="mt-2">ข้อสอบล่าสุดที่มี เหตุกตฺตุวาจก:</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ปี</th>
+                    <th>เรื่อง</th>
+                    <th>ภาค</th>
+                    <th>HK/รวม</th>
+                    <th>สัดส่วน</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>๒๕๖๘</td>
+                    <td style="text-align:left;">ติสสเถระ</td>
+                    <td>7</td>
+                    <td><strong class="text-orange">4</strong> / 15</td>
+                    <td><span class="voice-badge badge-hk">27%</span></td>
+                </tr>
+                <tr>
+                    <td>๒๕๖๗</td>
+                    <td style="text-align:left;">กุมารกัสสปเถรมาตุ</td>
+                    <td>6</td>
+                    <td><strong class="text-orange">3</strong> / 10</td>
+                    <td><span class="voice-badge badge-hk">30%</span></td>
+                </tr>
+                <tr>
+                    <td>๒๕๖๖</td>
+                    <td style="text-align:left;">เขมา</td>
+                    <td>8</td>
+                    <td><strong class="text-orange">1</strong> / &mdash;</td>
+                    <td><span class="voice-badge badge-hk">low</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="insight-box mt-1">
+            <strong>Trend สำคัญ:</strong> ทุกปีตั้งแต่ ๒๕๖๓ เป็นต้นมา ข้อสอบออกเรื่องที่มี เหตุกตฺตุวาจก (HK) อย่างน้อย 1 ประโยค
+            และสัดส่วน HK ในข้อสอบก็เพิ่มขึ้นเรื่อยๆ &mdash; นี่คือ signal ที่ชัดเจนว่าต้องเตรียม
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 5: EXAM SCOPE ANALYSIS (NEW) ===== -->
+<div class="section-card">
+    <div class="section-header green-header">
+        <div class="section-num">4</div>
+        <h2>Exam Scope Analysis &mdash; ขนาดข้อสอบที่ออกจริง</h2>
+    </div>
+    <div class="section-body">
+        <p>จากข้อสอบทั้งหมด 230 ข้อ วิเคราะห์จำนวนประโยคที่ออกในแต่ละข้อสอบ เพื่อกำหนด "sweet spot" สำหรับ scoped exam range:</p>
+
+        <h3>สัมพันธ์ (61 ข้อ)</h3>
+        <p class="text-muted">avg = 8.6 ประโยค, std = 3.1, range 3&ndash;19</p>
+
+        <!-- Histogram for Sambandh -->
+        <div class="histogram">
+            <!-- 3 sentences --> <div class="histogram-bar out-range" style="height: 12%;"></div>
+            <!-- 4 sentences --> <div class="histogram-bar out-range" style="height: 8%;"></div>
+            <!-- 5 sentences --> <div class="histogram-bar in-range" style="height: 30%;"></div>
+            <!-- 6 sentences --> <div class="histogram-bar in-range" style="height: 42%;"></div>
+            <!-- 7 sentences --> <div class="histogram-bar in-range" style="height: 55%;"></div>
+            <!-- 8 sentences --> <div class="histogram-bar in-range" style="height: 85%;"></div>
+            <!-- 9 sentences --> <div class="histogram-bar in-range" style="height: 100%;"></div>
+            <!-- 10 sentences --> <div class="histogram-bar in-range" style="height: 70%;"></div>
+            <!-- 11 sentences --> <div class="histogram-bar in-range" style="height: 45%;"></div>
+            <!-- 12 sentences --> <div class="histogram-bar in-range" style="height: 30%;"></div>
+            <!-- 13 sentences --> <div class="histogram-bar out-range" style="height: 15%;"></div>
+            <!-- 14 sentences --> <div class="histogram-bar out-range" style="height: 10%;"></div>
+            <!-- 15+ sentences --> <div class="histogram-bar out-range" style="height: 6%;"></div>
+        </div>
+        <div class="histogram-labels">
+            <span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15+</span>
+        </div>
+        <div class="histogram-legend">
+            <div class="histogram-legend-item"><div class="legend-dot in"></div> Sweet spot (5&ndash;12 ประโยค)</div>
+            <div class="histogram-legend-item"><div class="legend-dot out"></div> นอก sweet spot</div>
+        </div>
+
+        <h3 class="mt-2">แปล (122 ข้อ)</h3>
+        <p class="text-muted">avg = 9.8 ประโยค, std = 5.8, range 3&ndash;51</p>
+
+        <!-- Histogram for Translation -->
+        <div class="histogram">
+            <!-- 3 sentences --> <div class="histogram-bar out-range" style="height: 10%;"></div>
+            <!-- 4 sentences --> <div class="histogram-bar out-range" style="height: 8%;"></div>
+            <!-- 5 sentences --> <div class="histogram-bar in-range" style="height: 28%;"></div>
+            <!-- 6 sentences --> <div class="histogram-bar in-range" style="height: 40%;"></div>
+            <!-- 7 sentences --> <div class="histogram-bar in-range" style="height: 60%;"></div>
+            <!-- 8 sentences --> <div class="histogram-bar in-range" style="height: 75%;"></div>
+            <!-- 9 sentences --> <div class="histogram-bar in-range" style="height: 85%;"></div>
+            <!-- 10 sentences --> <div class="histogram-bar in-range" style="height: 100%;"></div>
+            <!-- 11 sentences --> <div class="histogram-bar in-range" style="height: 70%;"></div>
+            <!-- 12 sentences --> <div class="histogram-bar in-range" style="height: 55%;"></div>
+            <!-- 13 sentences --> <div class="histogram-bar in-range" style="height: 40%;"></div>
+            <!-- 14 sentences --> <div class="histogram-bar in-range" style="height: 30%;"></div>
+            <!-- 15 sentences --> <div class="histogram-bar in-range" style="height: 22%;"></div>
+            <!-- 16+ sentences --> <div class="histogram-bar out-range" style="height: 12%;"></div>
+        </div>
+        <div class="histogram-labels">
+            <span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16+</span>
+        </div>
+        <div class="histogram-legend">
+            <div class="histogram-legend-item"><div class="legend-dot in"></div> Sweet spot (5&ndash;15 ประโยค)</div>
+            <div class="histogram-legend-item"><div class="legend-dot out"></div> นอก sweet spot</div>
+        </div>
+
+        <div class="insight-box mt-2">
+            <strong>Key Insight:</strong> 80%+ ของข้อสอบอยู่ในช่วง <strong>5&ndash;15 ประโยค</strong>
+            <br>ดังนั้นเรื่องที่ยาว 100+ ประโยค &mdash; ไม่ใช่ทั้งเรื่องที่จะออก แต่จะออก <strong>เฉพาะช่วง 2&ndash;3 หน้า</strong> ที่มีประโยค 5&ndash;15 ประโยค
+            <br>ในแต่ละเรื่องด้านล่าง จึงระบุ <strong>&ldquo;ช่วงหน้าที่ควรเตรียม&rdquo;</strong> = scoped 2-page segment ที่ match ขนาดข้อสอบ + มี HK/M สูง
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 6: 10 CANDIDATES ===== -->
+<div class="section-card">
+    <div class="section-header green-header">
+        <div class="section-num">5</div>
+        <h2>10 เรื่องเก็ง &mdash; Scoped Exam Range</h2>
+    </div>
+    <div class="section-body">
+        <h3>10 เรื่องที่มีโอกาสออกสูง พร้อมช่วงหน้าที่ควรเตรียม</h3>
+        <p class="text-muted mb-1">เกณฑ์: ไม่เคยออกสนามไทย (หรือออกน้อย) + มีเหตุกตฺตุวาจก (HK) สูง + scoped page range ตรงขนาดข้อสอบ</p>
+
+        <!-- ========== Candidate 1: โชติกเถระ ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-1">
+                <div class="candidate-rank">1</div>
+                <div>
+                    <div class="candidate-name">โชติกเถระ</div>
+                </div>
+                <span class="candidate-tag">ภาค 8</span>
+                <span class="candidate-tag">หน้า 158&ndash;181</span>
+                <span class="candidate-tag">281 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">21</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">21</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">19</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M sent=</span>
+                    <span class="stat-value text-blue">18</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">วาจกพิเศษมากที่สุด</span>
+                    <span class="stat-value text-red">ในทุกเรื่อง!</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 158&ndash;159</strong> (16 ประโยค, HK=6 สูงสุดใน 2 หน้า)
+                    <br><span class="text-muted" style="font-size:0.88em;">hot zones อื่น: หน้า 162&ndash;163 (16 sent, HK=4), หน้า 172&ndash;173 (26 sent, HK=3+M=3), หน้า 178&ndash;179 (24 sent, HK=5)</span>
+                </div>
+                <div class="candidate-note">
+                    ไม่เคยออกสนามไทย เคยออก USA &mdash; เรื่องยาวมาก 281 ประโยค มีทั้ง HK และ M จำนวนมากที่สุดในทุกเรื่อง เหมาะทั้งสัมพันธ์และแปล
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 2: สุมนสามเณร ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-2">
+                <div class="candidate-rank">2</div>
+                <div>
+                    <div class="candidate-name">สุมนสามเณร</div>
+                </div>
+                <span class="candidate-tag">ภาค 8</span>
+                <span class="candidate-tag">หน้า 85&ndash;100</span>
+                <span class="candidate-tag">182 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">14</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">14</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">9</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M sent=</span>
+                    <span class="stat-value text-blue">7</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 98&ndash;99</strong> (26 ประโยค, HK=5, M=2)
+                    <br><span class="text-muted" style="font-size:0.88em;">hot zone อื่น: หน้า 92&ndash;93 (29 sent, HK=3)</span>
+                </div>
+                <div class="candidate-note">
+                    ไม่เคยออกสนามไทย &mdash; HK สูงอันดับ 2 ในภาค 8 เรื่องเกี่ยวกับสามเณรที่มีอิทธิฤทธิ์มาก
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 3: จันทาภเถระ ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-3">
+                <div class="candidate-rank">3</div>
+                <div>
+                    <div class="candidate-name">จันทาภเถระ</div>
+                </div>
+                <span class="candidate-tag">ภาค 8</span>
+                <span class="candidate-tag">หน้า 147&ndash;157</span>
+                <span class="candidate-tag">118 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">9</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">7</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">9</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M sent=</span>
+                    <span class="stat-value text-blue">9</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 154&ndash;155</strong> (18 ประโยค, HK=4)
+                    <br><span class="text-muted" style="font-size:0.88em;">hot zone อื่น: หน้า 152&ndash;153 (13 sent, HK=3+M=2)</span>
+                </div>
+                <div class="candidate-note">
+                    ไม่เคยออกสนามไทย &mdash; มี HK+M balanced ดี ท้ายเล่มภาค 8 ตรง U-shape distribution
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 4: จิญจมาณวิกา ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-4">
+                <div class="candidate-rank">4</div>
+                <div>
+                    <div class="candidate-name">จิญจมาณวิกา</div>
+                </div>
+                <span class="candidate-tag">ภาค 6</span>
+                <span class="candidate-tag">หน้า 46&ndash;51</span>
+                <span class="candidate-tag">52 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">8</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">8</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">1</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">เคยออก</span>
+                    <span class="stat-value text-muted">1 ครั้ง (สัมพันธ์)</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 48&ndash;49</strong> (24 ประโยค, HK=4)
+                </div>
+                <div class="candidate-note">
+                    เคยออกสนามไทย 1 ครั้ง (สัมพันธ์) แต่ HK=8 สูงมาก &mdash; ภาค 6 ตรง prediction สัมพันธ์ เนื้อหาน่าสนใจเหมาะออกแปล
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 5: จุลลกาลอุบาสก ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-5">
+                <div class="candidate-rank">5</div>
+                <div>
+                    <div class="candidate-name">จุลลกาลอุบาสก</div>
+                </div>
+                <span class="candidate-tag">ภาค 6</span>
+                <span class="candidate-tag">หน้า 24&ndash;27</span>
+                <span class="candidate-tag">34 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">8</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">7</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">5</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="scoped-badge">เรื่องสั้น &mdash; ทั้งเรื่องพอดีข้อสอบ</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 24&ndash;25</strong> (~11 ประโยค, มี HK)
+                    <br><span class="text-muted" style="font-size:0.88em;">เรื่องทั้งหมด 34 ประโยค &mdash; ตัดช่วง 2 หน้าต้นเรื่อง</span>
+                </div>
+                <div class="candidate-note">
+                    ไม่เคยออกสนามไทย (กาลเถระ &ne; จุลลกาล) &mdash; ภาค 6 ตรง prediction สัมพันธ์ เรื่องสั้นกระชับเหมาะข้อสอบ HK+M สูงเมื่อเทียบกับความยาว
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 6: อุปกาชีวก ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-6">
+                <div class="candidate-rank">6</div>
+                <div>
+                    <div class="candidate-name">อุปกาชีวก</div>
+                </div>
+                <span class="candidate-tag">ภาค 8</span>
+                <span class="candidate-tag">หน้า 36&ndash;41</span>
+                <span class="candidate-tag">40 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">5</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">3</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">7</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M sent=</span>
+                    <span class="stat-value text-blue">7</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 36&ndash;37</strong> (~12 ประโยค, HK+M ผสม)
+                    <br><span class="text-muted" style="font-size:0.88em;">เรื่องทั้งหมด 40 ประโยค &mdash; หน้า 38&ndash;39 (~12 sent) ก็เป็นไปได้</span>
+                </div>
+                <div class="candidate-note">
+                    ไม่เคยออกสนามไทย &mdash; M สูงกว่า HK เรื่องเกี่ยวกับอาชีวกที่พบพระพุทธเจ้า เรื่องสั้นเหมาะกับรูปแบบข้อสอบ
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 7: จูฬธนุคคหบัณฑิต ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-7">
+                <div class="candidate-rank">7</div>
+                <div>
+                    <div class="candidate-name">จูฬธนุคคหบัณฑิต</div>
+                </div>
+                <span class="candidate-tag">ภาค 8</span>
+                <span class="candidate-tag">หน้า 29&ndash;35</span>
+                <span class="candidate-tag">61 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">8</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">5</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">4</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 29&ndash;31</strong> (ต้นเรื่อง, มี HK)
+                </div>
+                <div class="candidate-note">
+                    ไม่เคยออกสนามไทย &mdash; ต้นเล่มภาค 8 (ตรง U-shape ต้นเล่มที่ออกบ่อย) HK=8 สูง
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 8: เขมา ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-8">
+                <div class="candidate-rank">8</div>
+                <div>
+                    <div class="candidate-name">เขมา</div>
+                </div>
+                <span class="candidate-tag">ภาค 8</span>
+                <span class="candidate-tag">หน้า 20&ndash;28</span>
+                <span class="candidate-tag">84 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">8</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">7</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">3</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">เคยออก</span>
+                    <span class="stat-value text-muted">2566 (หน้า 20&ndash;21)</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 22&ndash;24</strong> (ยังไม่เคยออกช่วงนี้)
+                    <br><span class="text-muted" style="font-size:0.88em;">หน้า 20&ndash;21 ออกแล้ว 2566 &rarr; เหลือหน้า 22&ndash;28 ที่ยังไม่เคยออก</span>
+                </div>
+                <div class="candidate-note">
+                    เคยออกไทย 2566 แต่ออกเฉพาะหน้า 20&ndash;21 &mdash; ส่วนหน้า 22&ndash;28 ยังไม่เคยออก มี HK เหลืออยู่
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 9: สุขสามเณร ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-9">
+                <div class="candidate-rank">9</div>
+                <div>
+                    <div class="candidate-name">สุขสามเณร</div>
+                </div>
+                <span class="candidate-tag">ภาค 5</span>
+                <span class="candidate-tag">หน้า 79&ndash;100</span>
+                <span class="candidate-tag">230 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">22</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">19</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">17</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M sent=</span>
+                    <span class="stat-value text-blue">14</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="usa-flag">USA เคยออก</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 98&ndash;99</strong> (26 ประโยค, HK=5, M=2)
+                    <br><span class="text-muted" style="font-size:0.88em;">hot zone อื่น: หน้า 92&ndash;93 (HK=3)</span>
+                </div>
+                <div class="candidate-note">
+                    ไม่เคยออกสนามไทย เคยออก USA &rarr; อาจตามมาออกไทย &mdash; ภาค 5 ตรง prediction แปล HK=22+M=17 สูงมาก
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Candidate 10: ปธานิกติสสเถระ ========== -->
+        <div class="candidate-card">
+            <div class="candidate-header rank-10">
+                <div class="candidate-rank">10</div>
+                <div>
+                    <div class="candidate-name">ปธานิกติสสเถระ (กุมารกัสสปเถรมาตุ)</div>
+                </div>
+                <span class="candidate-tag">ภาค 6</span>
+                <span class="candidate-tag">หน้า 11&ndash;15</span>
+                <span class="candidate-tag">46 ประโยค</span>
+            </div>
+            <div class="candidate-body">
+                <div class="candidate-stat">
+                    <span class="stat-label">HK=</span>
+                    <span class="stat-value text-orange">8</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">HK sent=</span>
+                    <span class="stat-value text-orange">8</span>
+                </div>
+                <div class="candidate-stat">
+                    <span class="stat-label">M=</span>
+                    <span class="stat-value text-blue">3</span>
+                </div>
+                <div class="scope-range">
+                    <strong>ช่วงที่ควรเตรียม: หน้า 12&ndash;13</strong> (~10 ประโยค, ตรงที่มี HK)
+                </div>
+                <div class="candidate-note">
+                    กุมารกัสสปเถรมาตุ เคยออก 2567 แปล &rarr; ปธานิกติสสเถระ อยู่ก่อนหน้าในเล่มเดียวกัน อาจออกสัมพันธ์ &mdash; ภาค 6 ตรง prediction
+                </div>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <h3>เรื่องที่ออก USA แล้ว &mdash; อาจตามมาออกไทย</h3>
+        <ul class="usa-list">
+            <li>
+                <span class="usa-flag">USA</span>
+                <strong>โชติกเถระ</strong> &mdash; ภาค 8, HK=21, M=19 &mdash; <strong class="text-red">#1 เรื่องเก็ง</strong>
+            </li>
+            <li>
+                <span class="usa-flag">USA</span>
+                <strong>สุขสามเณร</strong> &mdash; ภาค 5, HK=22, M=17 &mdash; <strong class="text-orange">#9 เรื่องเก็ง</strong>
+            </li>
+            <li>
+                <span class="usa-flag">USA</span>
+                <strong>กปิลมัจฉะ</strong> &mdash; ภาค 8, HK=6
+            </li>
+            <li>
+                <span class="usa-flag">USA</span>
+                <strong>สันตติมหามัตต</strong> &mdash; ภาค 5, HK=5
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- ===== SECTION 7: HK EXAMPLES ===== -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-num">6</div>
+        <h2>ตัวอย่างรูปแบบประโยค เหตุกตฺตุวาจก</h2>
+    </div>
+    <div class="section-body">
+        <p>ตัวอย่างประโยคจริงจากเรื่องที่น่าออก &mdash; ศึกษารูปแบบ เหตุกตฺตา + การิตกมฺม + กริยาเหตุ:</p>
+
+        <!-- Example 1 -->
+        <div class="dep-arc-container">
+            <div class="dep-arc-title">Example 1: จาก โชติกเถระ (8_158_3)</div>
+            <div class="dep-arc-words">
+                <div class="dep-word">
+                    <div class="dep-word-box role-normal">กิร</div>
+                    <div class="dep-role">ศัพท์<br>(particle)</div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-normal">อตีเต</div>
+                    <div class="dep-role">กาลสตฺตมี<br><span class="dep-arrow">&rarr; กาเรสุํ</span></div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-normal">เทฺว</div>
+                    <div class="dep-role">วิเสสน<br><span class="dep-arrow">&rarr; กุฏุมฺพิกา</span></div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-normal">ภาตโร</div>
+                    <div class="dep-role">วิเสสน<br><span class="dep-arrow">&rarr; กุฏุมฺพิกา</span></div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-hk">กุฏุมฺพิกา</div>
+                    <div class="dep-role"><strong>เหตุกตฺตา</strong><br><span class="dep-arrow">&rarr; กาเรสุํ</span><br>(ผู้สั่งให้ทำ)</div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-karita">ชเน</div>
+                    <div class="dep-role"><strong>การิตกมฺม</strong><br><span class="dep-arrow">&rarr; กาเรสุํ</span><br>(ผู้ถูกสั่ง)</div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-verb">กาเรสุํ</div>
+                    <div class="dep-role"><strong>อาขฺยาตบท</strong><br>เหตุกตฺตุวาจก<br>(กริยาเหตุ)</div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-normal">พาราณสิยํ</div>
+                    <div class="dep-role">ภินฺนาธาร</div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-normal">มหนฺตํ</div>
+                    <div class="dep-role">วิเสสน<br><span class="dep-arrow">&rarr; อุจฺฉุกฺเขตฺตํ</span></div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-normal">อุจฺฉุกฺเขตฺตํ</div>
+                    <div class="dep-role">อวุตฺตกมฺม<br><span class="dep-arrow">&rarr; กาเรสุํ</span></div>
+                </div>
+            </div>
+
+            <div class="thai-translation">
+                <strong>แปล:</strong> อ.กุฎุมพี ท. ผู้พี่น้องชาย ๒ ในเมืองพาราณสี ยังชน ท. ให้ทำแล้ว ซึ่งไร่อ้อย อันใหญ่
+            </div>
+
+            <div class="pattern-box">
+                <strong>Pattern:</strong>
+                <code>เหตุกตฺตา</code> (ผู้สั่ง: กุฏุมฺพิกา) +
+                <code>การิตกมฺม</code> (ผู้ถูกสั่ง: ชเน) +
+                <code>กาเรสุํ</code> (กริยาเหตุ = ให้ทำ)
+            </div>
+        </div>
+
+        <!-- Example 2 -->
+        <div class="dep-arc-container">
+            <div class="dep-arc-title">Example 2: จาก กุมารกัสสปเถรมาตุ (6_12_2)</div>
+            <div class="dep-arc-words">
+                <div class="dep-word">
+                    <div class="dep-word-box role-hk">เทวทตฺโต</div>
+                    <div class="dep-role"><strong>เหตุกตฺตา</strong><br><span class="dep-arrow">&rarr; อุปฺปพฺพาเชถ</span><br>(ผู้สั่ง)</div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-karita">ภิกฺขุนึ</div>
+                    <div class="dep-role"><strong>การิตกมฺม</strong><br><span class="dep-arrow">&rarr; อุปฺปพฺพาเชถ</span><br>(ผู้ถูกสั่ง)</div>
+                </div>
+                <div class="dep-word">
+                    <div class="dep-word-box role-verb">อุปฺปพฺพาเชถ</div>
+                    <div class="dep-role"><strong>อาขฺยาตบท</strong><br>เหตุกตฺตุวาจก<br>(กริยาเหตุ)</div>
+                </div>
+            </div>
+
+            <div class="thai-translation">
+                <strong>แปล:</strong> อ.พระเทวทัต กล่าวแล้ว ว่า (อ.ท่าน ท.) จงให้ (ซึ่งภิกษุณี) บวชออก ดังนี้
+            </div>
+
+            <div class="pattern-box">
+                <strong>Pattern:</strong>
+                <code>เหตุกตฺตา</code> (ผู้สั่ง: เทวทตฺโต) +
+                <code>การิตกมฺม</code> (ผู้ถูกสั่ง: ภิกฺขุนึ) +
+                <code>อุปฺปพฺพาเชถ</code> (กริยาเหตุ = จงให้บวชออก)
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <strong>จำรูปแบบนี้ให้ขึ้นใจ:</strong>
+            <br>1. หา <strong class="text-red">กริยาเหตุ</strong> ก่อน (ลงท้าย -เ, -าเปติ, -าเปสิ, -าเรสุํ ฯลฯ)
+            <br>2. หา <strong class="text-blue">เหตุกตฺตา</strong> = ผู้ที่สั่งให้ทำ (ปฐมาวิภัตติ)
+            <br>3. หา <strong class="text-orange">การิตกมฺม</strong> = ผู้ถูกสั่ง / ผู้ถูกใช้ให้ทำ (ทุติยาวิภัตติ)
+            <br>4. คำแปล: &ldquo;ยัง...ให้ทำ&rdquo; หรือ &ldquo;ให้...ทำ&rdquo;
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 8: SUMMARY ===== -->
+<div class="section-card summary-card">
+    <div class="summary-header">สรุป Prediction &mdash; ข้อสอบ ป.ธ.๓ พ.ศ. ๒๕๖๙</div>
+    <div class="summary-body">
+
+        <div class="summary-grid">
+            <div class="summary-block">
+                <h4>สัมพันธ์ ๒๕๖๙</h4>
+                <ul>
+                    <li><strong>ภาค:</strong> 5 หรือ 6 <span class="confidence-badge conf-high">80% confidence</span></li>
+                    <li><strong>ตำแหน่ง:</strong> ต้น-กลางเล่ม (trend ล่าสุด)</li>
+                    <li><strong>ขนาด:</strong> 5&ndash;12 ประโยค (avg 8.6)</li>
+                    <li><strong>เตรียม:</strong> เรื่องที่มี HK &mdash; เน้นรูปประโยคเหตุกตฺตุวาจก</li>
+                </ul>
+            </div>
+            <div class="summary-block">
+                <h4>แปล ๒๕๖๙</h4>
+                <ul>
+                    <li><strong>ภาค:</strong> 5 หรือ 8 <span class="confidence-badge conf-mid">70% confidence</span></li>
+                    <li><strong>ขนาด:</strong> 5&ndash;15 ประโยค (avg 9.8)</li>
+                    <li><strong>เน้น:</strong> เรื่องที่ไม่เคยออก + มีวาจกพิเศษ</li>
+                    <li><strong>scoped:</strong> เตรียมเฉพาะช่วงหน้าที่ระบุในแต่ละเรื่อง</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="text-align:center; margin-bottom:14px; color:var(--brown);">10 เรื่องที่ต้องเตรียม (จัดกลุ่มตามภาค)</h3>
+
+        <!-- Group by Book -->
+        <div class="book-group">
+            <div class="book-group-title">ภาค 5 &mdash; ตรง prediction แปล</div>
+            <ul class="priority-list">
+                <li>
+                    <span class="priority-dot medium"></span>
+                    <strong>#9 สุขสามเณร</strong> (หน้า 79&ndash;100) &mdash; HK=22, M=17 &mdash; <span class="scoped-badge">เตรียม: หน้า 98&ndash;99</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="book-group">
+            <div class="book-group-title">ภาค 6 &mdash; ตรง prediction สัมพันธ์</div>
+            <ul class="priority-list">
+                <li>
+                    <span class="priority-dot high"></span>
+                    <strong>#4 จิญจมาณวิกา</strong> (หน้า 46&ndash;51) &mdash; HK=8 &mdash; <span class="scoped-badge">เตรียม: หน้า 48&ndash;49</span>
+                </li>
+                <li>
+                    <span class="priority-dot high"></span>
+                    <strong>#5 จุลลกาลอุบาสก</strong> (หน้า 24&ndash;27) &mdash; HK=8, M=5 &mdash; <span class="scoped-badge">เตรียม: หน้า 24&ndash;25</span>
+                </li>
+                <li>
+                    <span class="priority-dot medium"></span>
+                    <strong>#10 ปธานิกติสสเถระ</strong> (หน้า 11&ndash;15) &mdash; HK=8 &mdash; <span class="scoped-badge">เตรียม: หน้า 12&ndash;13</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="book-group">
+            <div class="book-group-title">ภาค 8 &mdash; เรื่องยังไม่เคยออก + HK/M สูง</div>
+            <ul class="priority-list">
+                <li>
+                    <span class="priority-dot critical"></span>
+                    <strong>#1 โชติกเถระ</strong> (หน้า 158&ndash;181) &mdash; HK=21, M=19 &mdash; <span class="scoped-badge">เตรียม: หน้า 158&ndash;159</span>
+                </li>
+                <li>
+                    <span class="priority-dot critical"></span>
+                    <strong>#2 สุมนสามเณร</strong> (หน้า 85&ndash;100) &mdash; HK=14, M=9 &mdash; <span class="scoped-badge">เตรียม: หน้า 98&ndash;99</span>
+                </li>
+                <li>
+                    <span class="priority-dot high"></span>
+                    <strong>#3 จันทาภเถระ</strong> (หน้า 147&ndash;157) &mdash; HK=9, M=9 &mdash; <span class="scoped-badge">เตรียม: หน้า 154&ndash;155</span>
+                </li>
+                <li>
+                    <span class="priority-dot high"></span>
+                    <strong>#6 อุปกาชีวก</strong> (หน้า 36&ndash;41) &mdash; HK=5, M=7 &mdash; <span class="scoped-badge">เตรียม: หน้า 36&ndash;37</span>
+                </li>
+                <li>
+                    <span class="priority-dot medium"></span>
+                    <strong>#7 จูฬธนุคคหบัณฑิต</strong> (หน้า 29&ndash;35) &mdash; HK=8, M=4 &mdash; <span class="scoped-badge">เตรียม: หน้า 29&ndash;31</span>
+                </li>
+                <li>
+                    <span class="priority-dot medium"></span>
+                    <strong>#8 เขมา</strong> (หน้า 20&ndash;28) &mdash; HK=8, M=3 &mdash; <span class="scoped-badge">เตรียม: หน้า 22&ndash;24</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<!-- ===== SECTION 9: DATA SNAPSHOT ===== -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-num">8</div>
+        <h2>Data Snapshot &mdash; ข้อมูลที่ใช้วิเคราะห์</h2>
+    </div>
+    <div class="section-body">
+        <p class="text-muted">ข้อมูล frozen ณ วันที่ ๘ กุมภาพันธ์ ๒๕๖๙</p>
+
+        <div class="data-grid">
+            <div class="data-item">
+                <div class="data-value">230</div>
+                <div class="data-label">ข้อสอบทั้งหมด</div>
+            </div>
+            <div class="data-item">
+                <div class="data-value">61</div>
+                <div class="data-label">สัมพันธ์ (ไทย)</div>
+            </div>
+            <div class="data-item">
+                <div class="data-value">122</div>
+                <div class="data-label">แปล (ไทย)</div>
+            </div>
+            <div class="data-item">
+                <div class="data-value">15</div>
+                <div class="data-label">สัมพันธ์ (USA)</div>
+            </div>
+            <div class="data-item">
+                <div class="data-value">32</div>
+                <div class="data-label">แปล (USA)</div>
+            </div>
+            <div class="data-item">
+                <div class="data-value">2529&ndash;2568</div>
+                <div class="data-label">ช่วงปีที่ครอบคลุม</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Match Type</th>
+                    <th>จำนวน</th>
+                    <th>หมายเหตุ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Exact match</td>
+                    <td><strong>92</strong></td>
+                    <td class="text-muted">ตรงเรื่องเป๊ะ</td>
+                </tr>
+                <tr>
+                    <td>Prefix match</td>
+                    <td><strong>129</strong></td>
+                    <td class="text-muted">ตรงคำนำหน้าชื่อเรื่อง</td>
+                </tr>
+                <tr>
+                    <td>Unmatched</td>
+                    <td><strong>9</strong></td>
+                    <td class="text-muted">ไม่ตรง (ข้อสอบเก่ามาก)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="insight-box">
+            <strong>Match rate:</strong> 221/230 = <strong>96.1%</strong> &mdash; ข้อสอบที่จับคู่กับเรื่องในธรรมบทได้
+            <br>ข้อสอบที่ไม่ตรง 9 ข้อ เป็นข้อสอบเก่ามากก่อน พ.ศ. ๒๕๓๕ ที่ชื่อเรื่องต่างจากฉบับปัจจุบัน
+        </div>
+    </div>
+</div>
+
+<!-- ===== DISCLAIMER FOOTER ===== -->
+<div class="disclaimer">
+    วิเคราะห์จากสถิติย้อนหลัง ไม่ใช่ข้อสอบจริง &mdash; ใช้เป็นแนวทางในการเตรียมตัวเท่านั้น
+    <br><span class="text-muted">Data source: สถิติข้อสอบ ๒๓๐ ข้อ (พ.ศ. ๒๕๒๙&ndash;๒๕๖๘) | 10 เรื่องเก็ง พร้อม scoped exam range | Generated: ๘ ก.พ. ๒๕๖๙</span>
+</div>
+
+</body>
+</html>
