@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ข้อสอบบาลีไวยากรณ์สนามหลวง ประโยค ๓ (พ.ศ. ๒๕๕๘–๒๕๖๘)</title>
+<style>
+  :root {
+    --gold: #b8860b;
+    --gold-light: #f5e6c8;
+    --maroon: #800020;
+    --bg: #faf7f0;
+    --card: #fff;
+    --border: #e0d5c0;
+    --text: #2c2418;
+    --text-light: #6b5d4d;
+    --green: #2e7d32;
+    --red: #c62828;
+    --blue: #1565c0;
+    --tab-active: #800020;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', 'Noto Sans Thai', 'TH Sarabun New', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--maroon), #4a0010);
+    color: #fff;
+    text-align: center;
+    padding: 2rem 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0.3rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+  }
+
+  header p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+  }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+    background: var(--gold-light);
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .tab-btn {
+    padding: 0.5rem 1.2rem;
+    border: 2px solid var(--maroon);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--maroon);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+
+  .tab-btn:hover { background: #f0e0e5; }
+
+  .tab-btn.active {
+    background: var(--maroon);
+    color: #fff;
+  }
+
+  .score-bar {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0.6rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .score-bar span { font-weight: 600; }
+  .score-correct { color: var(--green); }
+  .score-wrong { color: var(--red); }
+  .score-total { color: var(--text-light); }
+
+  .section { display: none; padding: 1rem; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 1.3rem;
+    color: var(--maroon);
+    text-align: center;
+    margin: 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gold);
+  }
+
+  .quiz-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: border-color 0.3s;
+  }
+
+  .quiz-card.correct { border-color: var(--green); background: #f1f8e9; }
+  .quiz-card.wrong { border-color: var(--red); background: #ffebee; }
+
+  .q-number {
+    display: inline-block;
+    background: var(--maroon);
+    color: #fff;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+    font-weight: 700;
+  }
+
+  .q-year {
+    display: inline-block;
+    background: var(--gold-light);
+    color: var(--gold);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 0.3rem;
+  }
+
+  .q-header { margin-bottom: 0.8rem; }
+
+  .q-term {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--maroon);
+    margin: 0.4rem 0;
+  }
+
+  .q-prompt {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .option-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.7rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--maroon);
+    background: #fdf0f3;
+  }
+
+  .option-btn:disabled { cursor: default; }
+  .option-btn.selected-correct {
+    border-color: var(--green);
+    background: #e8f5e9;
+    color: var(--green);
+    font-weight: 600;
+  }
+  .option-btn.selected-wrong {
+    border-color: var(--red);
+    background: #ffebee;
+    color: var(--red);
+    text-decoration: line-through;
+  }
+  .option-btn.reveal-correct {
+    border-color: var(--green);
+    background: #e8f5e9;
+    font-weight: 600;
+  }
+
+  .explanation {
+    display: none;
+    margin-top: 0.8rem;
+    padding: 0.8rem;
+    background: #fff8e1;
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .explanation.show { display: block; }
+
+  .explanation strong { color: var(--maroon); }
+
+  .filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .filter-btn {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover { border-color: var(--gold); }
+  .filter-btn.active {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+
+  .btn-reset {
+    display: block;
+    margin: 2rem auto;
+    padding: 0.7rem 2rem;
+    background: var(--maroon);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .btn-reset:hover { background: #5a0015; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--maroon);
+  }
+
+  .stat-card .label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+  }
+
+  /* Sentence correction section specific */
+  .sentence-wrong {
+    background: #fff3e0;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    border-left: 3px solid #ff9800;
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+  }
+
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.2rem; }
+    .tab-btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+    .quiz-card { padding: 1rem; }
+    .q-term { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ข้อสอบบาลีไวยากรณ์สนามหลวง ประโยค ๓</h1>
+  <p>ข้อ ๒ สนธิ · ข้อ ๔ แก้ประโยค · ข้อ ๖ สมาส · ข้อ ๗ ตัทธิต (พ.ศ. ๒๕๕๘–๒๕๖๘)</p>
+</header>
+
+<div class="controls">
+  <button class="tab-btn active" onclick="showSection('sandhi')">ข้อ ๒ สนธิ</button>
+  <button class="tab-btn" onclick="showSection('sentence')">ข้อ ๔ แก้ประโยค</button>
+  <button class="tab-btn" onclick="showSection('samasa')">ข้อ ๖ สมาส</button>
+  <button class="tab-btn" onclick="showSection('taddh')">ข้อ ๗ ตัทธิต</button>
+</div>
+
+<div class="score-bar">
+  <span class="score-correct" id="scoreCorrect">ถูก: 0</span>
+  <span class="score-wrong" id="scoreWrong">ผิด: 0</span>
+  <span class="score-total" id="scoreTotal">รวม: 0</span>
+</div>
+
+<!-- SANDHI SECTION -->
+<div class="section active" id="sec-sandhi"></div>
+
+<!-- SENTENCE CORRECTION SECTION -->
+<div class="section" id="sec-sentence"></div>
+
+<!-- SAMASA SECTION -->
+<div class="section" id="sec-samasa"></div>
+
+<!-- TADDHITA SECTION -->
+<div class="section" id="sec-taddh"></div>
+
+<footer>
+  รวมข้อสอบบาลีไวยากรณ์สนามหลวง ข้อ ๒, ๔, ๖, ๗ (พ.ศ. ๒๕๕๘–๒๕๖๘) ประโยค ๓<br>
+  โดย NotebookLM (prompted by Puri) — จัดทำเว็บโดย Claude
+</footer>
+
+<script>
+// ============ DATA ============
+
+const sandhiData = [
+  {id:1, term:"ยถญฺญมนุสาสติ", year:"๒๕๖๖ (๑), ๒๕๖๕ (๒)", cut:"ยถา-อญฺญํ-อนุสาสติ", type:"โลปสระสนธิ, อาเทสนิคคหิตสนธิ", explain:"(๑) ระหว่าง ยถา-อญฺญํ: ถ้าสระหน้าเป็นทีฆะ สระหลังเป็นรัสสะ มีพยัญชนะสังโยคอยู่เบื้องหลังก็ดี เป็นทีฆะก็ดี ลบสระหน้า คือ ที่สุด ยถา ต่อเป็น ยถญฺญํ (๒) ระหว่าง ยถญฺญํ-อนุสาสติ: ถ้านิคคหิตอยู่หน้า สระอยู่หลัง แปลงนิคคหิตเป็น ม ต่อเป็น ยถญฺญมนุสาสติ"},
+  {id:2, term:"สจาหํ", year:"๒๕๖๓ (๑), ๒๕๕๘ (๑)", cut:"สเจ-อหํ", type:"โลปสระสนธิ", explain:"ถ้าสระหน้าเป็นทีฆะ สระหลังเป็นรัสสะ ลบสระหน้า คือ ลบสระ เอ ที่ สเจ แล้วทีฆะสระหลัง คือ อ ที่ อหํ เป็น อา ต่อเป็น สจาหํ"},
+  {id:3, term:"จตูสฺวาริยสจฺเจสุ", year:"๒๕๖๗ (๑)", cut:"จตูสุ-อริยสจฺเจสุ", type:"อาเทสสระสนธิ", explain:"(๑) สระ อุ อยู่หน้า สระ อ อยู่หลัง แปลง อุ เป็น ว เป็น จตูสฺว (๒) ระหว่าง จตูสฺว กับ อริยสจฺเจสุ: สระหน้าและสระหลังมีรูปเสมอกัน ลบสระหน้า คือ อ ที่ ว เสีย แล้วทีฆะสระหลังเป็น อา ต่อเป็น จตูสฺวาริยสจฺเจสุ"},
+  {id:4, term:"อภพฺโพทานาหํ", year:"๒๕๖๐ (๑)", cut:"อภพฺโพ-อิทานิ-อหํ", type:"สระสนธิ (โลปสระสนธิ ๒ ครั้ง)", explain:"(๑) ระหว่าง อภพฺโพ-อิทานิ: สระ ๒ ตัวมีรูปไม่เสมอกัน ลบสระเบื้องปลายบ้างก็ได้ คือ ลบสระ อิ ที่ศัพท์ อิทานิ เสีย ต่อเป็น อภพฺโพทานิ (๒) ระหว่าง อภพฺโพทานิ-อหํ: สระไม่เสมอกัน ลบสระหน้า คือ ลบ อิ ที่ อภพฺโพทานิ แล้วทีฆะสระหลัง คือ อ ที่ อหํ ต่อเป็น อภพฺโพทานาหํ"},
+  {id:5, term:"เอวเมวายํ", year:"๒๕๖๘ (๑)", cut:"เอวํ – เอว – อยํ", type:"อาเทสนิคคหิตสนธิ, โลปสระสนธิ", explain:"(๑) ระหว่าง เอวํ – เอว: สระอยู่เบื้องหลัง แปลงนิคคหิต เป็น ม ต่อเป็น เอวเมว (๒) ระหว่าง เอวเมว-อยํ: สระหน้าและสระหลังเป็นรัสสะ มีรูปเสมอกัน ลบสระหน้า ทีฆะสระหลัง ต่อเป็น เอวเมวายํ"},
+  {id:6, term:"อหนฺทานิ", year:"๒๕๖๘ (๒)", cut:"อหํ-อิทานิ", type:"โลปสระสนธิ, อาเทสนิคคหิตสนธิ", explain:"เมื่อนิคคหิตอยู่หน้าสระอยู่หลัง ลบสระหลัง คือ อิ ที่ อิทานิ แล้ว อาเทสนิคคหิต เป็น น ต่อเป็น อหนฺทานิ"},
+  {id:7, term:"กิมิทนฺติ", year:"๒๕๖๗ (๒)", cut:"กึ-อิทํ-อิติ", type:"อาเทสสระสนธิ, โลปสระสนธิ", explain:"(๑) ระหว่าง กึ-อิทํ: ถ้านิคคหิตอยู่หน้า สระอยู่หลัง แปลงนิคคหิต เป็น ม ต่อเป็น กิมิทํ (๒) ระหว่าง กิมิทํ-อิติ: ถ้านิคคหิตอยู่หน้า ลบสระเบื้องปลายได้บ้าง คือ ลบ อิ ที่ อิติ ต่อเป็น กิมิทนฺติ"},
+  {id:8, term:"อชฺชตคฺเคทานาหํ", year:"๒๕๖๖ (๒)", cut:"อชฺชตคฺเค-อิทานิ-อหํ", type:"โลปสระสนธิ (สองครั้ง)", explain:"(๑) ระหว่าง อชฺชตคฺเค-อิทานิ: สระไม่เสมอกัน ลบสระหลังบ้างก็ได้ คือ ลบ อิ ที่ อิทานิ ต่อเป็น อชฺชตคฺเคทานิ (๒) ระหว่าง อชฺชตคฺเคทานิ-อหํ: สระไม่เสมอกัน ลบสระหน้า คือ ลบ อิ ที่ อชฺชตคฺเคทานิ แล้วทีฆะสระหลัง คือ อ ที่ อหํ ต่อเป็น อชฺชตคฺเคทานาหํ"},
+  {id:9, term:"ปูรติเยว", year:"๒๕๖๕ (๑)", cut:"ปูรติ – เอว", type:"อาคมพยัญชนะสนธิ", explain:"ถ้าสระอยู่หลัง ลง ย พยัญชนะอาคมได้บ้าง ต่อเป็น ปูรติเยว"},
+  {id:10, term:"ตยาเวตํ", year:"๒๕๖๕ (๑)", cut:"ตยา – เอตํ", type:"อาคมพยัญชนะสนธิ", explain:"ถ้าสระอยู่หลัง ลง ว พยัญชนะอาคมได้บ้าง ต่อเป็น ตยาเวตํ"},
+  {id:11, term:"ภวตฺวนฺตราโย", year:"๒๕๖๔ (๑)", cut:"ภวตุ+อนฺตราโย", type:"อาเทสสระสนธิ", explain:"สระอยู่หลัง อาเทส อุ ที่ ตุ เป็น ว เป็น ภวตฺว ลบ อ สระหน้า ที่ ว แล้วต่อเป็น ภวตฺวนฺตราโย"},
+  {id:12, term:"ทูรมาคโต", year:"๒๕๖๔ (๑)", cut:"ทูรํ+อาคโต", type:"อาเทสนิคคหิตสนธิ", explain:"ถ้านิคคหิตอยู่หน้า สระอยู่หลัง อาเทสนิคคหิต เป็น ม ต่อเป็น ทูรมาคโต"},
+  {id:13, term:"สาหํ", year:"๒๕๖๔ (๑)", cut:"สา+อหํ", type:"โลปสระสนธิ", explain:"สระหน้าเป็นทีฆะ และสระหลังเป็นรัสสะ ลบสระหน้า แล้วทีฆะสระหลังเป็น อา ต่อเป็น สาหํ"},
+  {id:14, term:"อุภยมฺเปตสฺส", year:"๒๕๖๔ (๒)", cut:"อุภยํ+ปิ+เอตสฺส", type:"อาเทสนิคคหิตสนธิ, โลปสระสนธิ", explain:"(๑) ระหว่าง อุภยํ+ปิ: แปลงนิคคหิตที่ อุภยํ เป็น ม ต่อเป็น อุภยมฺปิ (๒) ระหว่าง อุภยมฺปิ+เอตสฺส: ลบสระหน้า คือ อิ ที่ อุภยมฺปิ ต่อเป็น อุภยมฺเปตสฺส"},
+  {id:15, term:"อตฺตานญฺเจ", year:"๒๕๖๓ (๑)", cut:"อตฺตานํ-เจ", type:"อาเทสนิคคหิตสนธิ", explain:"เมื่อมีพยัญชนะ คือ จ อยู่หลัง นิคคหิตอยู่หน้า อาเทสนิคคหิตเป็นพยัญชนะสุดท้ายแห่ง จ วรรค คือ ญฺ ต่อเป็น อตฺตานญฺเจ"},
+  {id:16, term:"ตุมฺเหเยว", year:"๒๕๖๓ (๑)", cut:"ตุมฺเห-เอว", type:"อาคมพยัญชนะสนธิ", explain:"ถ้าสระอยู่หลัง ลง ย พยัญชนะอาคมได้บ้าง ต่อเป็น ตุมฺเหเยว"},
+  {id:17, term:"ยานีมานิ", year:"๒๕๖๓ (๒)", cut:"ยานิ-อิมานิ", type:"โลปสระสนธิ", explain:"ถ้าสระทั้ง ๒ เป็นรัสสะมีรูปเสมอกัน เมื่อลบแล้ว ต้องทีฆะสระที่ยังไม่ได้ลบ ต่อเป็น ยานีมานิ"},
+  {id:18, term:"ตญฺชโน", year:"๒๕๖๓ (๒)", cut:"ตํ-ชโน", type:"อาเทสนิคคหิตสนธิ", explain:"เมื่อมีพยัญชนะ คือ ช อยู่หลัง นิคคหิตอยู่หน้า อาเทสนิคคหิตเป็นพยัญชนะสุดท้ายแห่ง จ วรรค ต่อเป็น ตญฺชโน"},
+  {id:19, term:"คาถมาห", year:"๒๕๖๓ (๒)", cut:"คาถํ-อาห", type:"อาเทสนิคคหิตสนธิ", explain:"ถ้านิคคหิตอยู่หน้า สระอยู่หลัง แปลงนิคคหิต เป็น ม ต่อเป็น คาถมาห"},
+  {id:20, term:"ยโถทเก", year:"๒๕๖๒ (๑)", cut:"ยถา+อุทเก", type:"วิการสระสนธิ", explain:"เมื่อลบสระหน้า คือ อา ที่ ยถา แล้ว วิการสระหลัง คือ อุ ที่ อุทเก เป็น โอ ต่อเป็น ยโถทเก"},
+  {id:21, term:"อุปฺปลํว", year:"๒๕๖๒ (๑)", cut:"อุปฺปลํ+ว", type:"ปกตินิคคหิตสนธิ", explain:"ต่อเป็น อุปฺปลํว"},
+  {id:22, term:"อิเธวเมโส", year:"๒๕๖๒ (๒)", cut:"อิธ-เอว-เอโส", type:"โลปสระสนธิ, อาคมพยัญชนะสนธิ", explain:"(๑) ระหว่าง อิธ-เอว: ลบสระหน้า คือ อ ที่ อิธ ต่อเป็น อิเธว (๒) ระหว่าง อิเธว-เอโส: ถ้าพยัญชนะอยู่เบื้องหลัง ลง ม พยัญชนะอาคมได้บ้าง ต่อเป็น อิเธวเมโส"},
+  {id:23, term:"ชีวิตญฺจิทํ", year:"๒๕๖๑ (๑)", cut:"ชีวิตํ+จ+อิทํ", type:"อาเทสนิคคหิตสนธิ, โลปสระสนธิ", explain:"(๑) ระหว่าง ชีวิตํ+จ: แปลงนิคคหิตที่ ชีวิตํ เป็น ญฺ ต่อเป็น ชีวิตญฺจ (๒) ระหว่าง ชีวิตญฺจ+อิทํ: ลบสระหน้า คือ อ ที่ ชีวิตญฺจ ต่อเป็น ชีวิตญฺจิทํ"},
+  {id:24, term:"สจายํ", year:"๒๕๖๑ (๒)", cut:"สเจ-อยํ", type:"โลปสระสนธิ", explain:"สระหน้าและสระหลังมีรูปไม่เสมอกัน ลบสระหน้าคือ เอ ที่ สเจ แล้วทีฆะสระหลังที่มิได้ลบ ต่อเป็น สจายํ"},
+  {id:25, term:"สฺวาหํ", year:"๒๕๖๐ (๒)", cut:"โส-อหํ", type:"อาเทสสระสนธิ", explain:"(๑) สระ โอ อยู่หน้า สระ อ อยู่หลัง เอา โอ เป็น ว เป็น สฺว (๒) ระหว่าง สฺว กับ อหํ: สระหน้าและสระหลังมีรูปเสมอกัน ลบสระหน้า คือ อ ที่ ว เสียแล้วทีฆะสระหลังเป็น อา ต่อเป็น สฺวาหํ"},
+  {id:26, term:"เยสนฺโน", year:"๒๕๖๐ (๒)", cut:"เยสํ-โน", type:"อาเทสนิคคหิตสนธิ", explain:"ถ้าพยัญชนะอยู่หลัง นิคคหิตอยู่หน้า แปลงนิคคหิตเป็นพยัญชนะที่สุดวรรคของพยัญชนะหลัง คือ น ต่อเป็น เยสนฺโน"},
+  {id:27, term:"อลาพูเนว", year:"๒๕๕๙ (๑)", cut:"อลาพูนิ-อิว", type:"วิการสระสนธิ", explain:"ลบสระหน้า คือ อิ ที่ อลาพูนิ แล้ววิการ คือ แปลง อิ ที่ อิว เป็น เอ ต่อเป็น อลาพูเนว"},
+  {id:28, term:"เสฺวทานิ", year:"๒๕๕๙ (๒)", cut:"เสฺว-อิทานิ", type:"โลปสระสนธิ", explain:"ถ้าสระ ๒ ตัวมีรูปไม่เสมอกัน ลบสระเบื้องปลายบ้างก็ได้ คือลบสระ อิ ที่ศัพท์ อิทานิ เสีย ต่อเป็น เสฺวทานิ"},
+  {id:29, term:"กิเมวิทํ", year:"๒๕๕๙ (๒)", cut:"กึ-เอว-อิทํ", type:"อาเทสนิคคหิตสนธิ, โลปสระสนธิ", explain:"(๑) ระหว่าง กึ-เอว: สระอยู่หลัง นิคคหิตอยู่หน้า แปลงนิคคหิตเป็น ม ต่อเป็น กิเมว (๒) ระหว่าง กิเมว-อิทํ: ถ้าสระ ๒ ตัวมีรูปไม่เสมอกัน ลบสระหน้า คือ อ ในที่สุดแห่งศัพท์ กิเมว ต่อเป็น กิเมวิทํ"},
+  {id:30, term:"ยตฺรฏฺฐิโต", year:"๒๕๕๘ (๑)", cut:"ยตฺร-ฐิโต", type:"สัญโญคพยัญชนะสนธิ", explain:"ซ้อนหน้าพยัญชนะที่มีรูปไม่เหมือนกัน ตามหลักแห่งการสังโยค คือ ซ้อน ฏ พยัญชนะที่ ๑ หน้า ฐ พยัญชนะที่ ๒ ต่อเป็น ยตฺรฏฺฐิโต"},
+  {id:31, term:"เตเนวมาห", year:"๒๕๕๘ (๒)", cut:"เตน-เอวํ-อาห", type:"โลปสระสนธิ, อาเทสนิคคหิตสนธิ", explain:"(๑) ระหว่าง เตน-เอวํ: ถ้าสระหน้าเป็นรัสสะ สระหลังเป็นทีฆะ ลบสระหน้า คือ ลบ อ ที่ เตน เสีย ต่อเป็น เตเนวํ (๒) ระหว่าง เตเนวํ-อาห: ถ้านิคคหิตอยู่หน้า สระอยู่หลัง แปลงนิคคหิต เป็น ม ต่อเป็น เตเนวมาห"}
+];
+
+const samasaData = [
+  {id:1, term:"หิริโอตฺตปฺปสมฺปนฺนา (ภิกฺขู)", year:"๒๕๖๘ (๑)", type:"ตติยาตัปปุริสสมาส มี สมาหารทวันทวสมาส เป็นภายใน", vi:"(๑) ส.ทวัน. วิ. หิริ จ โอตฺตปฺปญฺจ หิริโอตฺตปฺปํ (๒) ต.ตัป. วิ. หิริโอตฺตปฺเปน สมฺปนฺนา หิริโอตฺตปฺปสมฺปนฺนา (ภิกฺขู)"},
+  {id:2, term:"ยถาเวคํ", year:"๒๕๖๘ (๒)", type:"นิปาตปุพพกะ อัพยยีภาวสมาส", vi:"เวคสฺส ปฏิปาฏิ ยถาเวคํ หรือ โย โย เวโค ยถาเวคํ"},
+  {id:3, term:"นิมฺมาตาปิติโก (ทารโก)", year:"๒๕๖๗ (๑)", type:"ฉัฏฐีตุลยาธิกรณพหุพพิหิสมาส มี อสมาหารทวันทวสมาส เป็นภายใน", vi:"(๑) อ.ทวัน. วิ. มาตา จ ปิตา จ มาตาปิตโร (๒) ฉ.ตุล. วิ. นิกฺขนฺตา มาตาปิตโร ยสฺส โส นิมฺมาตาปิติโก (ทารโก)"},
+  {id:4, term:"ตุฏฺฐจิตฺตา (อุปาสิกา)", year:"๒๕๖๗ (๒)", type:"ฉัฏฐีตุลยาธิกรณพหุพพิหิสมาส", vi:"ตุฏฺฐํ จิตฺตํ ยสฺสา สา ตุฏฺฐจิตฺตา (อุปาสิกา)"},
+  {id:5, term:"อนฺธพาโล (ปุริโส)", year:"๒๕๖๗ (๒)", type:"อุปมาบุพพบท วิเสสโนปมบท กัมมธารยสมาส", vi:"อนฺโธ อิว พาโล อนฺธพาโล (ปุริโส)"},
+  {id:6, term:"อคฺคธมฺมสมาหิโต", year:"๒๕๖๖ (๑)", type:"สัตตมีตัปปุริสสมาส หรือ ตติยาตัปปุริสสมาส มี วิเสสนบุพพบทกัมมธารยสมาส เป็นภายใน", vi:"(๑) วิ.บุพ.กัม. วิ. อคฺโค จ โส ธมฺโม จาติ อคฺคธมฺโม (๒) ส.ตัป. วิ. อคฺคธมฺเม สมาหิโต อคฺคธมฺมสมาหิโต หรือ ต.ตัป. วิ. อคฺคธมฺเมน สมาหิโต อคฺคธมฺมสมาหิโต"},
+  {id:7, term:"อโรคปุตฺตา (วิสาขา)", year:"๒๕๖๖ (๒)", type:"ฉัฏฐีตุลยาธิกรณพหุพพิหิสมาส มี นบุพพบทพหุพพิหิสมาส เป็นภายใน", vi:"(๑) น.บุพ.พหุพ. วิ. นตฺถิ เตสํ โรโคติ อโรคา (ปุตฺตา) (๒) ฉ.ตุล.พหุพ. วิ. อโรคา ปุตฺตา ยสฺสา สา อโรคปุตฺตา (วิสาขา)"},
+  {id:8, term:"อนฺธพาลเทวตา", year:"๒๕๖๕ (๑)", type:"วิเสสนบุพพบทกัมมธารยสมาส มี วิเสสโนปมบทกัมมธารยสมาส เป็นภายใน", vi:"(๑) วิ.อุปมา.กัม. วิ. อนฺโธ อิว พาลา อนฺธพาลา (เทวตา) (๒) วิ.บุพ.กัม. วิ. อนฺธพาลา เทวตา อนฺธพาลเทวตา"},
+  {id:9, term:"นิปฺปญฺโญ (ปุคฺคโล)", year:"๒๕๖๕ (๒)", type:"ฉัฏฐีตุลยาธิกรณพหุพพิหิสมาส", vi:"นิกฺขนฺตา ปญฺญา ยสฺส โส นิปฺปญฺโญ (ปุคฺคโล)"},
+  {id:10, term:"อนฺตรามคฺคํ", year:"๒๕๖๕ (๒)", type:"นิปาตปุพพกะ อัพยยีภาวสมาส", vi:"มคฺคสฺส อนฺตรา อนฺตรามคฺคํ"},
+  {id:11, term:"ภิกฺขุสงฺฆปริวุโต (ภควา)", year:"๒๕๖๔ (๑)", type:"ตติยาตัปปุริสสมาส มี ฉัฏฐีตัปปุริสสมาส เป็นภายใน", vi:"(๑) ฉ.ตัป. วิ. ภิกฺขูนํ สงฺโฆ ภิกฺขุสงฺโฆ (๒) ต.ตัป. วิ. ภิกฺขุสงฺเฆน ปริวุโต ภิกฺขุสงฺฆปริวุโต (ภควา)"},
+  {id:12, term:"อหิริกปุคฺคโล", year:"๒๕๖๔ (๒)", type:"วิเสสนบุพพบทกัมมธารยสมาส มี นบุพพบทพหุพพิหิสมาส เป็นภายใน", vi:"(๑) น.บุพ. พหุพ. วิ. นตฺถิ ตสฺส หิรีติ อหิริโก (ปุคฺคโล) (๒) วิ.บุพ.กัม. วิ. อหิริโก จ โส ปุคฺคโล จาติ อหิริกปุคฺคโล"},
+  {id:13, term:"อตฺตทตฺโถ", year:"๒๕๖๓ (๑), ๒๕๕๙ (๒)", type:"ฉัฏฐีตัปปุริสสมาส", vi:"อตฺตโน อตฺโถ อตฺตทตฺโถ"},
+  {id:14, term:"มโนเสฏฺฐา (ธมฺมา)", year:"๒๕๖๓ (๑)", type:"ฉัฏฐีตุลยาธิกรณพหุพพิหิสมาส", vi:"มโน เสฏฺโฐ เยสํ เต มโนเสฏฺฐา (ธมฺมา)"},
+  {id:15, term:"ทุกฺขปีฬิตสตฺตา", year:"๒๕๖๒ (๑)", type:"วิเสสนบุพพบทกัมมธารยสมาส มี ตติยาตัปปุริสสมาส เป็นภายใน", vi:"(๑) ต. ตัป. วิ. ทุกฺเขน ปีฬิตา ทุกฺขปีฬิตา (สตฺตา) (๒) วิ. บุพ. กัม. วิ. ทุกฺขปีฬิตา สตฺตา ทุกฺขปีฬิตสตฺตา"},
+  {id:16, term:"ทีฆายุโก (ปุริโส)", year:"๒๕๖๒ (๒)", type:"ฉัฏฐีตุลยาธิกรณพหุพพิหิสมาส", vi:"ทีฆํ อายุ ยสฺส โส ทีฆายุโก (ปุริโส)"},
+  {id:17, term:"อโรคา (อิตฺถี)", year:"๒๕๖๒ (๒)", type:"นบุพพบทพหุพพิหิสมาส", vi:"นตฺถิ ตสฺสา โรโคติ อโรคา (อิตฺถี)"},
+  {id:18, term:"มาตาปิตุอุปฏฺฐานํ", year:"๒๕๖๑ (๑)", type:"ฉัฏฐีตัปปุริสสมาส มี อสมาหารทวันทวสมาส เป็นภายใน", vi:"(๑) อ. ทวัน. วิ. มาตา จ ปิตา จ มาตาปิตโร (๒) ฉ. ตัป. วิ. มาตาปิตูนํ อุปฏฺฐานํ มาตาปิตุอุปฏฺฐานํ"},
+  {id:19, term:"สนฺตวาโจ (ภิกฺขุ)", year:"๒๕๖๑ (๒)", type:"ฉัฏฐีตุลยาธิกรณพหุพพิหิสมาส", vi:"สนฺตา วาจา ยสฺส โส สนฺตวาโจ (ภิกฺขุ)"},
+  {id:20, term:"อกุสลเจตนา", year:"๒๕๖๐ (๑)", type:"วิเสสนบุพพบทกัมมธารยสมาส มี นบุพพบทกัมมธารยสมาส เป็นภายใน", vi:"(๑) น.บุพ. กัม. วิ. น กุสลา อกุสลา (เจตนา) (๒) วิ.บุพ. กัม. วิ. อกุสลา เจตนา อกุสลเจตนา"},
+  {id:21, term:"ปุตฺตทารพนฺธนํ", year:"๒๕๖๐ (๒)", type:"อวธารณบุพพบทกัมมธารยสมาส มี สมาหารทวันทวสมาส เป็นภายใน", vi:"(๑) ส. ทวันทว. วิ. ปุตฺโต จ ทาโร จ ปุตฺตทารํ (๒) อว. กัม. วิ. ปุตฺตทารํ เอว พนฺธนํ ปุตฺตทารพนฺธนํ"},
+  {id:22, term:"รชสฺสิโร (ราชา)", year:"๒๕๕๙ (๑)", type:"ฉัฏฐีภินนาธิกรณพหุพพิหิสมาส", vi:"รโช สิรสิ (สิรสฺมึ) ยสฺส โส รชสฺสิโร (ราชา)"},
+  {id:23, term:"โสกาภิภูโต (ปุริโส)", year:"๒๕๕๙ (๑)", type:"ตติยาตัปปุริสสมาส", vi:"โสเกน อภิภูโต โสกาภิภูโต (ปุริโส)"},
+  {id:24, term:"อนจฺฉริโย (ปาสาโท)", year:"๒๕๕๙ (๒)", type:"นบุพพบทพหุพพิหิสมาส", vi:"นตฺถิ ตสฺส อจฺฉริยนฺติ อนจฺฉริโย (ปาสาโท)"},
+  {id:25, term:"ตโยชนวตฺถุ", year:"๒๕๕๘ (๑)", type:"ฉัฏฐีตัปปุริสสมาส มี อสมาหารทิคุสมาส เป็นภายใน", vi:"(๑) อ. ทิคุ. วิ. ตโย ชนา ตโยชนา (๒) ฉ. ตัป. วิ. ตโยชนานํ วตฺถุ ตโยชนวตฺถุ"},
+  {id:26, term:"ฉินฺนสํโยชนา (ภิกฺขู)", year:"๒๕๕๘ (๒)", type:"ตติยาพหุพพิหิสมาส", vi:"ฉินฺนานิ สํโยชนานิ เยหิ เต ฉินฺนสํโยชนา (ภิกฺขู)"},
+  {id:27, term:"ธมฺมครุโก (จกฺขุปาโล)", year:"๒๕๕๘ (๒)", type:"สัตตมีตัปปุริสสมาส", vi:"ธมฺเม ครุโก ธมฺมครุโก (จกฺขุปาโล)"}
+];
+
+const sentenceData = [
+  {id:1, year:"๒๕๖๘ (๑)", wrong:"เอกสฺมึปิ วเย ปุตฺโต วา ธีตา วา อุปฺปชฺเชยฺยํ ฯ", correct:"เอกสฺมึปิ วเย ปุตฺโต วา ธีตา วา อุปฺปชฺเชยฺย ฯ หรือ เอกสฺมึปิ วเย ปุตฺโต จ ธีตา จ อุปฺปชฺเชยฺยุํ ฯ", rule:"แก้กิริยาให้เข้ากับประธานตามกฎ 'วา' (กิริยาเอกวจนะ) หรือ 'จ' (กิริยาพหูวจนะ)"},
+  {id:2, year:"๒๕๖๘ (๑)", wrong:"อิตรา ทานํ อาวชฺชมาโน นิวตฺตนฺตา ตํ ปเทสํ ปาปุณิ ฯ", correct:"อิตรา ทานํ อาวชฺชมานา นิวตฺตนฺตี ตํ ปเทสํ ปาปุณิ ฯ หรือ อิตโร ทานํ อาวชฺชมาโน นิวตฺตนฺโต ตํ ปเทสํ ปาปุณิ ฯ", rule:"แก้คุณกิริยา (มาน/อนฺต) และศัพท์ประธานให้มีลิงค์และวจนะตรงกัน"},
+  {id:3, year:"๒๕๖๘ (๑)", wrong:"เอวํ ธมฺเม เทสิยนฺเต มหาชนสฺส ธมฺมาภิสมโย อโหสิ ฯ", correct:"เอวํ ธมฺเม เทสิยมาเน มหาชนสฺส ธมฺมาภิสมโย อโหสิ ฯ", rule:"แก้ปัจจัยในลักขณะกิริยา (เทสิยนฺเต) ให้เป็น มาเน (ธมฺเม เป็นนปุงสกลิงค์ กัมมวาจก)"},
+  {id:4, year:"๒๕๖๘ (๒)", wrong:"ปิณฺฑปาตํ ทาสา วา กมฺมกรา วา ภุญฺเชยฺย ฯ", correct:"ปิณฺฑปาตํ ทาสา วา กมฺมกรา วา ภุญฺเชยฺยุํ ฯ", rule:"แก้กิริยาเป็นพหูวจนะ (ภุญฺเชยฺยุํ) เพราะประธานเป็นพหูวจนะ"},
+  {id:5, year:"๒๕๖๘ (๒)", wrong:"สา กุมาริกา โสตาปตฺติผเล ปติฏฺฐหึสุ ฯ", correct:"สา กุมาริกา โสตาปตฺติผเล ปติฏฺฐหิ ฯ หรือ ตา กุมาริกา โสตาปตฺติผเล ปติฏฺฐหึสุ ฯ", rule:"แก้กิริยาเป็นเอกวจนะ (ปติฏฺฐหิ) ให้ตรงกับประธานเอกวจนะ \"สา กุมาริกา\""},
+  {id:6, year:"๒๕๖๘ (๒)", wrong:"มยํ วีสตีนํ ภิกฺขูนํ ภิกฺขํ ทสฺสามิ ฯ", correct:"มยํ วีสติยา ภิกฺขูนํ ภิกฺขํ ทสฺสาม ฯ หรือ อหํ วีสติยา ภิกฺขูนํ ภิกฺขํ ทสฺสามิ ฯ", rule:"แก้กิริยาให้ตรงกับประธาน (มยํ-ทสฺสาม/อหํ-ทสฺสามิ) และแก้สังขยา วีสตีนํ เป็น วีสติยา"},
+  {id:7, year:"๒๕๖๗ (๒)", wrong:"รูปนนฺทา สตฺถารํ โอโลเกนฺตา สมีเป ฐิตํ อิตฺถึ อทฺทส ฯ", correct:"รูปนนฺทา สตฺถารํ โอโลเกนฺตี สมีเป ฐิตํ อิตฺถึ อทฺทส ฯ", rule:"แก้คุณกิริยา (โอโลเกนฺตา) ให้เป็น โอโลเกนฺตี เพื่อให้ตรงกับอิตถีลิงค์ \"รูปนนฺทา\""},
+  {id:8, year:"๒๕๖๗ (๒)", wrong:"สญฺชยสฺส ปริสา ภินฺทิ ฯ", correct:"สญฺชยสฺส ปริสา ภิชฺชิ ฯ", rule:"แก้รูปธาตุจากสกัมมธาตุ (ภินฺทิ) เป็นอกัมมธาตุ (ภิชฺชิ) เพราะ \"ปริสา\" แตกเอง"},
+  {id:9, year:"๒๕๖๗ (๒)", wrong:"ทารกา มยา วาริยนฺตาปิ วจนํ น คณฺหาติ ฯ", correct:"ทารกา มยา วาริยมานาปิ วจนํ น คณฺหนฺติ ฯ", rule:"แก้ปัจจัยจาก อนฺต เป็น มาน ให้เป็นกัมมวาจก และแก้กิริยาเป็นพหูวจนะ"},
+  {id:10, year:"๒๕๖๖ (๑)", wrong:"เทสนาวสาเน องฺกุโร จ อินฺทโก จ โสตาปตฺติผเล ปติฏฺฐหิ ฯ", correct:"เทสนาวสาเน องฺกุโร จ อินฺทโก จ โสตาปตฺติผเล ปติฏฺฐหึสุ ฯ", rule:"แก้กิริยาให้เป็นพหูวจนะ เพราะประธานเชื่อมด้วย \"จ\" มี ๒ ตัว"},
+  {id:11, year:"๒๕๖๖ (๑)", wrong:"เถโร ปุนปฺปุนํ ปุจฺฉิยนฺโตปิ น กเถสิ ฯ", correct:"เถโร ปุนปฺปุนํ ปุจฺฉิยมาโนปิ น กเถสิ ฯ", rule:"แก้ปัจจัยในกัมมวาจกจาก อนฺต เป็น มาน"},
+  {id:12, year:"๒๕๖๖ (๑)", wrong:"อุโภ อคฺคปาทา ภินฺทึสุ ฯ", correct:"อุโภ อคฺคปาทา ภิชฺชึสุ ฯ", rule:"แก้รูปธาตุจากสกัมมธาตุ (ภินฺทึสุ) เป็นอกัมมธาตุ (ภิชฺชึสุ)"},
+  {id:13, year:"๒๕๖๕ (๑)", wrong:"ปิตา โน มหลฺลกา อโหสิ ฯ", correct:"ปิตา โน มหลฺลโก อโหสิ ฯ", rule:"แก้คุณนาม มหลฺลกา ให้เป็น มหลฺลโก เพื่อให้ตรงกับประธาน \"ปิตา\""},
+  {id:14, year:"๒๕๖๕ (๑)", wrong:"เม สามิเก ชิฆจฺฉาย ปิฬิยนฺเต น สกฺกา มยา ภุญฺชิตุํ ฯ", correct:"มม สามิเก ชิฆจฺฉาย ปิฬิยมาเน น สกฺกา มยา ภุญฺชิตุํ ฯ", rule:"แก้สัพพนาม เม ให้เป็น มม (ตำแหน่งนำหน้า) และแก้ลักขณะให้เป็น ปิฬิยมาเน"},
+  {id:15, year:"๒๕๖๕ (๑)", wrong:"เทวทตฺโต สงฺฆํ ภิชฺชิสฺสติ ฯ", correct:"เทวทตฺโต สงฺฆํ ภินฺทิสฺสติ ฯ", rule:"แก้รูปธาตุจากอกัมมธาตุ (ภิชฺชิสฺสติ) เป็นสกัมมธาตุ (ภินฺทิสฺสติ) เพราะมี \"สงฺฆํ\" เป็นกรรม"},
+  {id:16, year:"๒๕๖๔ (๑)", wrong:"สา อนาถา วิจรนฺตา มหาทุกฺขํ ปาปุณนฺติ ฯ", correct:"สา อนาถา วิจรนฺตี มหาทุกฺขํ ปาปุณาติ ฯ หรือ ตา อนาถา วิจรนฺติโย มหาทุกฺขํ ปาปุณนฺติ ฯ", rule:"แก้คุณกิริยา วิจรนฺตา เป็น วิจรนฺตี (อิตถีลิงค์) และกิริยาให้เป็นเอกวจนะ"},
+  {id:17, year:"๒๕๖๔ (๑)", wrong:"ตโยปิ สิกฺขา กถิตาเยว โหติ ฯ", correct:"ติสฺโสปิ สิกฺขา กถิตาเยว โหนฺติ ฯ", rule:"แก้สังขยา ตโย (ปุงลิงค์) ให้เป็น ติสฺโส (อิตถีลิงค์) และแก้กิริยา โหติ ให้เป็น โหนฺติ (พหูวจนะ)"},
+  {id:18, year:"๒๕๖๔ (๒)", wrong:"มหาปฐวี เทฺวธา ภินฺทิ ฯ", correct:"มหาปฐวี เทฺวธา ภิชฺชิ ฯ", rule:"แก้รูปธาตุจากสกัมมธาตุ (ภินฺทิ) เป็นอกัมมธาตุ (ภิชฺชิ) เพราะแผ่นดินแตกเอง"},
+  {id:19, year:"๒๕๖๔ (๒)", wrong:"เอวํ กนิฏฺเฐน ตโย สมฺปตฺติโย ปฏฺฐิตา ฯ", correct:"เอวํ กนิฏฺเฐน ติสฺโส สมฺปตฺติโย ปฏฺฐิตา ฯ", rule:"แก้สังขยา ตโย (ปุงลิงค์) ให้เป็น ติสฺโส (อิตถีลิงค์)"},
+  {id:20, year:"๒๕๖๔ (๒)", wrong:"มหาชโน อุชฺฌายึสุ ฯ", correct:"มหาชโน อุชฺฌายิ ฯ หรือ มหาชนา อุชฺฌายึสุ ฯ", rule:"แก้กิริยาให้เป็นเอกวจนะ ให้ตรงกับประธาน \"มหาชโน\""},
+  {id:21, year:"๒๕๖๓ (๑)", wrong:"เอกจฺเจ (อิตฺถิโย) สตฺถุ ปุรโต นจฺจิตุํ อารภิ ฯ", correct:"เอกจฺจา (อิตฺถิโย) สตฺถุ ปุรโต นจฺจิตุํ อารภึสุ ฯ", rule:"แก้สัพพนาม เอกจฺเจ (ปุงลิงค์) ให้เป็น เอกจฺจา (อิตถีลิงค์) และแก้กิริยาเป็นพหูวจนะ"},
+  {id:22, year:"๒๕๖๓ (๑)", wrong:"ปติตกาเล หตฺโถ วา ปาโท วา ภิชฺเชยฺยุํ ฯ", correct:"ปติตกาเล หตฺโถ วา ปาโท วา ภิชฺเชยฺย ฯ หรือ ปติตกาเล หตฺโถ จ ปาโท จ ภิชฺเชยฺยุํ ฯ", rule:"แก้กิริยาตามกฎ 'วา' (เอกวจนะ) หรือ 'จ' (พหูวจนะ)"},
+  {id:23, year:"๒๕๖๓ (๑)", wrong:"ปิตา โน มหลฺลกา ชาตา ฯ", correct:"ปิตา โน มหลฺลโก ชาโต ฯ หรือ ปิตโร โน มหลฺลกา ชาตา ฯ", rule:"แก้คุณนามและกิริยาให้เป็นเอกวจนะ ตรงกับ \"ปิตา\""},
+  {id:24, year:"๒๕๖๓ (๒)", wrong:"มาคนฺทิยา ชีวนฺตาปิ มตาปิ มโตเยว นาม ฯ", correct:"มาคนฺทิยา ชีวนฺตีปิ มตาปิ มตาเยว นาม ฯ", rule:"แก้คุณกิริยาและคุณนามให้เป็นอิตถีลิงค์ ตรงกับ \"มาคนฺทิยา\""},
+  {id:25, year:"๒๕๖๓ (๒)", wrong:"เอกจฺจา ชนา สตฺถุ ธมฺมํ โสตุํ ลภติ ฯ", correct:"เอกจฺเจ ชนา สตฺถุ ธมฺมํ โสตุํ ลภนฺติ ฯ", rule:"แก้สัพพนาม เอกจฺจา (อิตถีลิงค์) ให้เป็น เอกจฺเจ (ปุงลิงค์) และแก้กิริยาเป็นพหูวจนะ"},
+  {id:26, year:"๒๕๖๒ (๒)", wrong:"สุธีโร จ ถาวโร จ สงฺฆํ อุปสมฺปทํ ยาจติ ฯ", correct:"สุธีโร จ ถาวโร จ สงฺฆํ อุปสมฺปทํ ยาจนฺติ ฯ", rule:"แก้กิริยา ยาจติ (เอกวจนะ) ให้เป็น ยาจนฺติ (พหูวจนะ) เพราะประธานเชื่อมด้วย \"จ\""},
+  {id:27, year:"๒๕๖๒ (๒)", wrong:"ตโยปิ สิกฺขา กถิตาเยว โหนฺติ ฯ", correct:"ติสฺโสปิ สิกฺขา กถิตาเยว โหนฺติ ฯ", rule:"แก้สังขยา ตโย (ปุงลิงค์) ให้เป็น ติสฺโส (อิตถีลิงค์)"},
+  {id:28, year:"๒๕๕๙ (๑)", wrong:"โสโก วา ภยํ วา ชายนฺติ ฯ", correct:"โสโก จ ภยํ จ ชายนฺติ ฯ หรือ โสโก วา ภยํ วา ชายติ ฯ", rule:"แก้ตามกฎ 'วา' (เอกวจนะ) หรือ 'จ' (พหูวจนะ)"},
+  {id:29, year:"๒๕๕๙ (๑)", wrong:"เอวํ กนิฏฺเฐน ตโย สมฺปตฺติโย ปฏฺฐิตา ฯ", correct:"เอวํ กนิฏฺเฐน ติสฺโส สมฺปตฺติโย ปฏฺฐิตา ฯ", rule:"แก้สังขยา ตโย (ปุงลิงค์) ให้เป็น ติสฺโส (อิตถีลิงค์)"},
+  {id:30, year:"๒๕๕๙ (๑)", wrong:"เอวํ ธมฺเม เทสิยนฺเต มหาชนสฺส ธมฺมาภิสมโย อโหสิ ฯ", correct:"เอวํ ธมฺเม เทสิยมาเน มหาชนสฺส ธมฺมาภิสมโย อโหสิ ฯ", rule:"แก้ปัจจัยในลักขณะกิริยา (เทสิยนฺเต) ให้เป็น มาเน"}
+];
+
+const taddhitaData = [
+  {id:1, term:"พาลฺยํ", year:"๒๕๖๘ (๑), ๒๕๖๗ (๑), ๒๕๖๖ (๒)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"พาลสฺส ภาโว พาลฺยํ"},
+  {id:2, term:"โสกินี (ปชา)", year:"๒๕๖๘ (๑), ๒๕๖๒ (๒)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"โสโก อสฺสา อตฺถีติ โสกินี (ปชา)"},
+  {id:3, term:"ทกฺขิเณยฺโย (สาวกสงฺโฆ)", year:"๒๕๖๘ (๒), ๒๕๖๐ (๒)", pacca:"เอยฺย ปัจจัย", type:"ฐานตัทธิต", vi:"ทกฺขิณํ อรหตีติ ทกฺขิเณยฺโย (สาวกสงฺโฆ)"},
+  {id:4, term:"นาครา (ชนา)", year:"๒๕๖๘ (๒), ๒๕๖๒ (๒)", pacca:"ณ ปัจจัย", type:"ราคาทิตัทธิต", vi:"นคเร ชาตา นาครา (ชนา) หรือ นคเร วสนฺตีติ นาครา"},
+  {id:5, term:"โปถุชฺชนิโก (กามสุขลฺลิกานุโยโค)", year:"๒๕๖๗ (๑)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"ปุถุชฺชนสฺส สนฺตโก โปถุชฺชนิโก (กามสุขลฺลิกานุโยโค)"},
+  {id:6, term:"คพฺภินี (เทวี)", year:"๒๕๖๗ (๑)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"คพฺโภ อสฺสา อตฺถีติ คพฺภินี (เทวี)"},
+  {id:7, term:"โกสมฺพิกา (ภิกฺขู)", year:"๒๕๖๗ (๒)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"โกสมฺพิยํ วสนฺตีติ โกสมฺพิกา (ภิกฺขู)"},
+  {id:8, term:"อุฏฺฐานวา (ปุริโส)", year:"๒๕๖๗ (๒)", pacca:"วนฺตุ ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"อุฏฺฐานํ อสฺส อตฺถีติ อุฏฺฐานวา (ปุริโส)"},
+  {id:9, term:"ชาลินี (ตณฺหา)", year:"๒๕๖๖ (๒), ๒๕๖๔ (๒)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"ชาลํ อสฺสา อตฺถีติ ชาลินี (ตณฺหา)"},
+  {id:10, term:"โสสานิกา (ภิกฺขู)", year:"๒๕๖๖ (๒)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"สุสาเน วสนฺตีติ โสสานิกา (ภิกฺขู)"},
+  {id:11, term:"อาโรคฺยํ", year:"๒๕๖๖ (๑)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"อโรคสฺส ภาโว อาโรคฺยํ"},
+  {id:12, term:"เตปิฏโก (เถโร)", year:"๒๕๖๖ (๑), ๒๕๖๐ (๑)", pacca:"ณ ปัจจัย", type:"ราคาทิตัทธิต", vi:"เตปิฏกํ ธาเรตีติ เตปิฏโก (เถโร)"},
+  {id:13, term:"อฏฺฐโม", year:"๒๕๖๖ (๑)", pacca:"ม ปัจจัย", type:"ปูรณตัทธิต", vi:"อฏฺฐนฺนํ ปูรโณ อฏฺฐโม"},
+  {id:14, term:"รุกฺขมูลิกา", year:"๒๕๖๕ (๑)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"รุกฺขมูเล วสนฺตีติ รุกฺขมูลิกา"},
+  {id:15, term:"เวรี", year:"๒๕๖๕ (๑)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"เวรํ อสฺส อตฺถีติ เวรี"},
+  {id:16, term:"โกสลฺลํ", year:"๒๕๖๕ (๑)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"กุสลสฺส ภาโว โกสลฺลํ"},
+  {id:17, term:"ทุกฺขี (ชโน)", year:"๒๕๖๕ (๒)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"ทุกฺขํ อสฺส อตฺถีติ ทุกฺขี (ชโน)"},
+  {id:18, term:"ทุสฺสีลฺยํ", year:"๒๕๖๕ (๒), ๒๕๕๘ (๑)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"ทุสฺสีลสฺส ภาโว ทุสฺสีลฺยํ"},
+  {id:19, term:"อิทฺธิมยํ (รูปํ)", year:"๒๕๖๕ (๒)", pacca:"มย ปัจจัย", type:"ปกติตัทธิต", vi:"อิทฺธิยา ปกตํ อิทฺธิมยํ (รูปํ)"},
+  {id:20, term:"เวสารชฺชํ", year:"๒๕๖๔ (๑)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"วิสารทสฺส ภาโว เวสารชฺชํ"},
+  {id:21, term:"พลวตี (ชิฆจฺฉา)", year:"๒๕๖๔ (๑), ๒๕๖๑ (๒)", pacca:"วนฺตุ ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"พลํ อสฺสา อตฺถีติ พลวตี (ชิฆจฺฉา)"},
+  {id:22, term:"เจตสิกํ (กมฺมํ)", year:"๒๕๖๔ (๑)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"เจตสา วตฺตตีติ เจตสิกํ (กมฺมํ)"},
+  {id:23, term:"เถยฺยํ", year:"๒๕๖๔ (๒), ๒๕๖๒ (๑)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"เถนสฺส ภาโว เถยฺยํ"},
+  {id:24, term:"ชนตา", year:"๒๕๖๔ (๒), ๒๕๖๑ (๑)", pacca:"ตา ปัจจัย", type:"สมุหตัทธิต / ภาวตัทธิต", vi:"ชนานํ สมุโห ชนตา หรือ ชนสฺส ภาโว ชนตา"},
+  {id:25, term:"อุโปสถิกา (อุปาสิกา)", year:"๒๕๖๓ (๒)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"อุโปสถํ สมาทิยตีติ อุโปสถิกา (อุปาสิกา)"},
+  {id:26, term:"มโนมยา (ธมฺมา)", year:"๒๕๖๓ (๒)", pacca:"มย ปัจจัย", type:"ปกติตัทธิต", vi:"มนสา ปกตา มโนมยา (ธมฺมา)"},
+  {id:27, term:"อติมานี (ปุคฺคโล)", year:"๒๕๖๓ (๒)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"อติมาโน อสฺส อตฺถีติ อติมานี (ปุคฺคโล)"},
+  {id:28, term:"ฉทฺวาริกา (ตณฺหา)", year:"๒๕๖๓ (๒), ๒๕๕๘ (๒)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"ฉทฺวาเร วตฺตตีติ ฉทฺวาริกา (ตณฺหา)"},
+  {id:29, term:"ปาสาทิโก (ภควา)", year:"๒๕๖๒ (๑), ๒๕๕๘ (๑)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"ปสาทํ ชเนตีติ ปาสาทิโก (ภควา)"},
+  {id:30, term:"ปญฺจโม", year:"๒๕๖๒ (๑)", pacca:"ม ปัจจัย", type:"ปูรณตัทธิต", vi:"ปญฺจนฺนํ ปูรโณ ปญฺจโม"},
+  {id:31, term:"สมฺโมทนียา (กถา)", year:"๒๕๖๒ (๒)", pacca:"อีย ปัจจัย", type:"ฐานตัทธิต", vi:"สมฺโมทนํ อรหตีติ สมฺโมทนียา (กถา)"},
+  {id:32, term:"รชฺชํ", year:"๒๕๖๐ (๒)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"รญฺโญ ภาโว รชฺชํ"},
+  {id:33, term:"สมฺมาทิฏฺฐิโก (ปุคฺคโล)", year:"๒๕๖๐ (๒)", pacca:"อิก / ณิก ปัจจัย", type:"ตทัสสัตถิตัทธิต / ตรตยาทิตัทธิต", vi:"สมฺมาทิฏฺฐิ อสฺส อตฺถีติ สมฺมาทิฏฺฐิโก (ปุคฺคโล)"},
+  {id:34, term:"ปญฺจธา", year:"๒๕๖๐ (๑)", pacca:"ธา ปัจจัย", type:"วิภาคตัทธิต", vi:"ปญฺจหิ วิภาเคหิ ปญฺจธา"},
+  {id:35, term:"ภาคินี (อิตฺถี)", year:"๒๕๖๐ (๑)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"ภาโค อสฺสา อตฺถีติ ภาคินี (อิตฺถี)"},
+  {id:36, term:"จตุกฺกํ", year:"๒๕๕๙ (๑)", pacca:"ก ปัจจัย", type:"สังขยาตัทธิต", vi:"จตฺตาริ ปริมาณานิ อสฺสาติ จตุกฺกํ"},
+  {id:37, term:"ทิฏฺฐธมฺมิโก (อตฺโถ)", year:"๒๕๕๙ (๑)", pacca:"ณิก ปัจจัย", type:"ตรตยาทิตัทธิต", vi:"ทิฏฺฐธมฺเม ปวตฺตตีติ ทิฏฺฐธมฺมิโก (อตฺโถ)"},
+  {id:38, term:"การุญฺญํ", year:"๒๕๕๙ (๒)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"กรุณาย ภาโว การุญฺญํ"},
+  {id:39, term:"ยสวา (ชโน)", year:"๒๕๕๙ (๒)", pacca:"วนฺตุ ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"ยโส อสฺส อตฺถีติ ยสวา (ชโน)"},
+  {id:40, term:"โสฬสโม (โกฏฺฐาโส)", year:"๒๕๕๙ (๒)", pacca:"ม ปัจจัย", type:"ปูรณตัทธิต", vi:"โสฬสนฺนํ ปูรโณ โสฬสโม (โกฏฺฐาโส)"},
+  {id:41, term:"สตฺตกํ", year:"๒๕๖๑ (๑)", pacca:"ก ปัจจัย", type:"สังขยาตัทธิต", vi:"สตฺต ปริมาณานิ อสฺสาติ สตฺตกํ"},
+  {id:42, term:"ลชฺชี (ภิกฺขุ)", year:"๒๕๖๑ (๑)", pacca:"อี ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"ลชฺชา อสฺส อตฺถีติ ลชฺชี (ภิกฺขุ)"},
+  {id:43, term:"สามญฺญํ", year:"๒๕๖๑ (๒)", pacca:"ณฺย ปัจจัย", type:"ภาวตัทธิต", vi:"สมณสฺส ภาโว สามญฺญํ"},
+  {id:44, term:"อตฺถิโก", year:"๒๕๕๘ (๑)", pacca:"อิก ปัจจัย", type:"ตทัสสัตถิตัทธิต", vi:"อตฺโถ อสฺส อตฺถีติ อตฺถิโก"},
+  {id:45, term:"กิเลสมยํ (พนฺธนํ)", year:"๒๕๕๘ (๒)", pacca:"มย ปัจจัย", type:"ปกติตัทธิต", vi:"กิเลเสหิ ปกตํ กิเลสมยํ (พนฺธนํ)"}
+];
+
+// ============ QUIZ ENGINE ============
+
+let score = {correct: 0, wrong: 0, total: 0};
+let answered = {};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateDistractors(correctAnswer, allAnswers, count = 3) {
+  const others = allAnswers.filter(a => a !== correctAnswer);
+  return shuffle(others).slice(0, count);
+}
+
+function updateScore() {
+  document.getElementById('scoreCorrect').textContent = `ถูก: ${score.correct}`;
+  document.getElementById('scoreWrong').textContent = `ผิด: ${score.wrong}`;
+  document.getElementById('scoreTotal').textContent = `รวม: ${score.correct + score.wrong}`;
+}
+
+function handleAnswer(section, qId, selectedIdx, correctIdx, cardEl) {
+  const key = `${section}-${qId}`;
+  if (answered[key]) return;
+  answered[key] = true;
+
+  const btns = cardEl.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  if (selectedIdx === correctIdx) {
+    score.correct++;
+    btns[selectedIdx].classList.add('selected-correct');
+    cardEl.classList.add('correct');
+  } else {
+    score.wrong++;
+    btns[selectedIdx].classList.add('selected-wrong');
+    btns[correctIdx].classList.add('reveal-correct');
+    cardEl.classList.add('wrong');
+  }
+
+  cardEl.querySelector('.explanation').classList.add('show');
+  updateScore();
+}
+
+// ============ RENDER SECTIONS ============
+
+function renderSandhi() {
+  const container = document.getElementById('sec-sandhi');
+  const allTypes = [...new Set(sandhiData.map(d => d.type))];
+
+  let html = `<h2 class="section-title">ข้อ ๒ การตัดต่อบทสนธิ (${sandhiData.length} ข้อ)</h2>`;
+
+  const shuffled = shuffle(sandhiData);
+  const allCuts = sandhiData.map(d => d.cut);
+
+  shuffled.forEach((q, idx) => {
+    const distractors = generateDistractors(q.cut, allCuts);
+    const options = shuffle([q.cut, ...distractors]);
+    const correctIdx = options.indexOf(q.cut);
+    const qKey = `sandhi-${q.id}`;
+
+    html += `<div class="quiz-card" id="card-${qKey}">
+      <div class="q-header">
+        <span class="q-number">${idx + 1}</span>
+        <span class="q-year">${q.year}</span>
+      </div>
+      <div class="q-term">${q.term}</div>
+      <div class="q-prompt">จงตัดบทสนธิ</div>
+      <div class="options">
+        ${options.map((opt, i) => `<button class="option-btn" onclick="handleAnswer('sandhi',${q.id},${i},${correctIdx},document.getElementById('card-${qKey}'))">${opt}</button>`).join('')}
+      </div>
+      <div class="explanation">
+        <strong>ประเภท:</strong> ${q.type}<br>
+        <strong>ตัดบท:</strong> ${q.cut}<br>
+        <strong>วิธี:</strong> ${q.explain}
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function renderSamasa() {
+  const container = document.getElementById('sec-samasa');
+  const allTypes = samasaData.map(d => d.type);
+
+  let html = `<h2 class="section-title">ข้อ ๖ สมาส (${samasaData.length} ข้อ)</h2>`;
+
+  const shuffled = shuffle(samasaData);
+
+  shuffled.forEach((q, idx) => {
+    const distractors = generateDistractors(q.type, allTypes);
+    const options = shuffle([q.type, ...distractors]);
+    const correctIdx = options.indexOf(q.type);
+    const qKey = `samasa-${q.id}`;
+
+    html += `<div class="quiz-card" id="card-${qKey}">
+      <div class="q-header">
+        <span class="q-number">${idx + 1}</span>
+        <span class="q-year">${q.year}</span>
+      </div>
+      <div class="q-term">${q.term}</div>
+      <div class="q-prompt">จงบอกชื่อสมาสพร้อมสมาสภายใน</div>
+      <div class="options">
+        ${options.map((opt, i) => `<button class="option-btn" onclick="handleAnswer('samasa',${q.id},${i},${correctIdx},document.getElementById('card-${qKey}'))">${opt}</button>`).join('')}
+      </div>
+      <div class="explanation">
+        <strong>สมาส:</strong> ${q.type}<br>
+        <strong>วิเคราะห์:</strong> ${q.vi}
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function renderSentence() {
+  const container = document.getElementById('sec-sentence');
+
+  let html = `<h2 class="section-title">ข้อ ๔ แก้ประโยคอาขยาต (${sentenceData.length} ข้อ)</h2>`;
+
+  const shuffled = shuffle(sentenceData);
+  const allCorrects = sentenceData.map(d => d.correct);
+
+  shuffled.forEach((q, idx) => {
+    const distractors = generateDistractors(q.correct, allCorrects, 2);
+    const options = shuffle([q.correct, q.wrong, ...distractors]);
+    const correctIdx = options.indexOf(q.correct);
+    const qKey = `sentence-${q.id}`;
+
+    html += `<div class="quiz-card" id="card-${qKey}">
+      <div class="q-header">
+        <span class="q-number">${idx + 1}</span>
+        <span class="q-year">${q.year}</span>
+      </div>
+      <div class="sentence-wrong">${q.wrong}</div>
+      <div class="q-prompt">จงเลือกประโยคที่แก้ไขถูกต้อง</div>
+      <div class="options">
+        ${options.map((opt, i) => `<button class="option-btn" onclick="handleAnswer('sentence',${q.id},${i},${correctIdx},document.getElementById('card-${qKey}'))">${opt}</button>`).join('')}
+      </div>
+      <div class="explanation">
+        <strong>เฉลย:</strong> ${q.correct}<br>
+        <strong>หลักการ:</strong> ${q.rule}
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function renderTaddhita() {
+  const container = document.getElementById('sec-taddh');
+  const allTypes = taddhitaData.map(d => d.type);
+  const allPacca = taddhitaData.map(d => d.pacca);
+
+  let html = `<h2 class="section-title">ข้อ ๗ ตัทธิต (${taddhitaData.length} ข้อ)</h2>`;
+
+  const shuffled = shuffle(taddhitaData);
+
+  shuffled.forEach((q, idx) => {
+    // Ask about the type
+    const distractors = generateDistractors(q.type, allTypes);
+    const options = shuffle([q.type, ...distractors]);
+    const correctIdx = options.indexOf(q.type);
+    const qKey = `taddh-${q.id}`;
+
+    html += `<div class="quiz-card" id="card-${qKey}">
+      <div class="q-header">
+        <span class="q-number">${idx + 1}</span>
+        <span class="q-year">${q.year}</span>
+      </div>
+      <div class="q-term">${q.term}</div>
+      <div class="q-prompt">จงบอกประเภทตัทธิตและปัจจัย</div>
+      <div class="options">
+        ${options.map((opt, i) => `<button class="option-btn" onclick="handleAnswer('taddh',${q.id},${i},${correctIdx},document.getElementById('card-${qKey}'))">${opt}</button>`).join('')}
+      </div>
+      <div class="explanation">
+        <strong>ปัจจัย:</strong> ${q.pacca}<br>
+        <strong>ประเภท:</strong> ${q.type}<br>
+        <strong>วิเคราะห์:</strong> ${q.vi}
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ============ NAVIGATION ============
+
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById(`sec-${name}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ============ INIT ============
+
+function init() {
+  renderSandhi();
+  renderSamasa();
+  renderSentence();
+  renderTaddhita();
+}
+
+init();
+</script>
+</body>
+</html>
