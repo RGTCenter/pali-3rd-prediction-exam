@@ -1,0 +1,3673 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTP DN Alignment Report — NW v4</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; padding: 20px; max-width: 1200px; margin: 0 auto; }
+  h1 { color: #58a6ff; font-size: 1.8em; margin-bottom: 5px; }
+  h2 { color: #79c0ff; font-size: 1.3em; margin: 30px 0 10px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
+  h3 { color: #d2a8ff; font-size: 1.1em; margin-bottom: 5px; }
+  .subtitle { color: #8b949e; font-size: 0.9em; margin-bottom: 20px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 15px 0; }
+  .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; text-align: center; }
+  .stat-card .value { font-size: 1.8em; font-weight: 700; color: #58a6ff; }
+  .stat-card .label { font-size: 0.8em; color: #8b949e; }
+  .stat-card.warn .value { color: #f85149; }
+  .stat-card.good .value { color: #3fb950; }
+  .stat-card.variant-card .value { color: #d29922; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85em; margin: 10px 0; background: #161b22; border-radius: 8px; overflow: hidden; }
+  th { background: #21262d; color: #79c0ff; padding: 8px 10px; text-align: left; font-weight: 600; position: sticky; top: 0; }
+  td { padding: 5px 10px; border-top: 1px solid #21262d; }
+  tr:hover { background: #1c2128; }
+
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .idx { color: #484f58; font-size: 0.8em; text-align: right; width: 55px; font-family: monospace; }
+  .be-word { color: #79c0ff; font-weight: 600; font-family: 'Noto Sans', sans-serif; font-size: 1.05em; }
+  .dtp-word { color: #c9d1d9; font-family: 'Noto Sans', sans-serif; }
+  .dtp-col { min-width: 250px; }
+  .dtp-cell { color: #d29922; }
+  .be-cell { color: #79c0ff; }
+
+  /* NW alignment states */
+  tr.match .be-word { color: #3fb950; }
+  tr.match .dtp-word { color: #3fb950; }
+  tr.norm-match .be-word { color: #7ee787; }
+  tr.norm-match .dtp-word { color: #d29922; }
+  tr.variant .be-word { color: #d29922; }
+  tr.variant .dtp-word { color: #d29922; }
+  .variant-indicator { color: #d29922; font-weight: 700; }
+  td.good { color: #3fb950; }
+  td.variant { color: #d29922; }
+  td.peyyala { color: #a371f7; }
+  td.ebt-col { color: #1f6feb; font-size: 0.8em; }
+
+  tr.sandhi .be-word { color: #f0883e; }
+  tr.sandhi .dtp-word { color: #f0883e; }
+  .sandhi-indicator { color: #f0883e; font-size: 0.8em; font-style: italic; }
+  td.sandhi { color: #f0883e; }
+  .tag-sandhi { background: #2d1b09; color: #f0883e; }
+
+  tr.in-peyyala { background: #1b1540; }
+  tr.in-peyyala .be-word { color: #a371f7; }
+  .range-cover { color: #a371f7; font-style: italic; font-size: 0.85em; }
+
+  tr.uncovered { background: #1a1b1e; }
+  tr.uncovered .be-word { color: #484f58; }
+  .uncovered-mark { color: #30363d; }
+
+  .tag { padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 600; display: inline-block; }
+  .tag-match { background: #0d2818; color: #3fb950; }
+  .tag-norm { background: #1a1d12; color: #7ee787; }
+  .tag-variant { background: #2d2209; color: #d29922; }
+  .tag-peyyala { background: #1b1340; color: #a371f7; }
+  .tag-uncovered { background: #1a1b1e; color: #484f58; }
+
+  .sample { margin: 20px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 15px; }
+  .sample table { margin-top: 10px; }
+  .desc { color: #8b949e; font-size: 0.85em; margin-bottom: 3px; }
+  .be-range { color: #484f58; font-size: 0.75em; font-family: monospace; margin-bottom: 8px; }
+
+  .legend { display: flex; gap: 15px; flex-wrap: wrap; margin: 10px 0 20px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.8em; }
+  .legend-color { width: 14px; height: 14px; border-radius: 3px; }
+
+  .note-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin: 15px 0; font-size: 0.9em; }
+  .note-box h3 { color: #79c0ff; margin-bottom: 8px; }
+  .note-box p { margin: 5px 0; }
+  .note-box code { background: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+
+  .success-box { background: #0d2818; border: 1px solid #3fb95066; border-radius: 8px; padding: 15px; margin: 15px 0; }
+  .success-box h3 { color: #3fb950; margin-bottom: 8px; }
+  .success-box p { font-size: 0.9em; margin: 5px 0; }
+
+  .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0; }
+  .compare-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; }
+  .compare-card h4 { margin-bottom: 8px; }
+  .compare-card .big { font-size: 2em; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1>DTP DN Alignment Report — NW v4.2 + Sandhi + EBT</h1>
+<p class="subtitle">Be (Burma-Edition) as basetext | DTP (ฉบับธรรมชัย) NW-aligned with iti-sandhi resolution | Dīghanikāya | 2026-02-24</p>
+
+<div class="success-box">
+  <h3>✅ NW Match Accuracy: 99.8% of nw_match tokens are exact (case-insensitive)</h3>
+  <p><strong>131,233</strong> of <strong>131,431</strong> nw_match tokens have identical Be word.</p>
+  <p>Remaining 198 are normalization differences (ṃ↔ṅ).</p>
+  <p style="color:#8b949e;font-size:0.85em;margin-top:8px">Note: This measures <em>accuracy within nw_match only</em> — not coverage. See alignment breakdown below for full distribution.</p>
+</div>
+
+<h2>📊 Overall Statistics</h2>
+<div class="stats-grid">
+  <div class="stat-card"><div class="value">159,167</div><div class="label">Total DTP Tokens</div></div>
+  <div class="stat-card good"><div class="value">131,431</div><div class="label">nw_match (82.6%)</div></div>
+  <div class="stat-card "><div class="value">7,024</div><div class="label">group_skip (4.4%)</div></div>
+  <div class="stat-card "><div class="value">6,057</div><div class="label">both_skip (3.8%)</div></div>
+  <div class="stat-card variant-card"><div class="value">5,011</div><div class="label">nw_mismatch (3.1%)</div></div>
+  <div class="stat-card "><div class="value">4,450</div><div class="label">ebt_delete (2.8%)</div></div>
+  <div class="stat-card "><div class="value">1,603</div><div class="label">nw_delete (1.0%)</div></div>
+  <div class="stat-card "><div class="value">1,294</div><div class="label">ebt_match (0.8%)</div></div>
+  <div class="stat-card "><div class="value">862</div><div class="label">nw_sandhi (0.5%)</div></div>
+  <div class="stat-card "><div class="value">734</div><div class="label">peyyala_range (0.5%)</div></div>
+  <div class="stat-card "><div class="value">440</div><div class="label">ebt_skip (0.3%)</div></div>
+  <div class="stat-card "><div class="value">261</div><div class="label">ebt_mismatch (0.2%)</div></div>
+</div>
+
+<div class="note-box">
+  <h3>How to Read This Report</h3>
+  <p><strong>Be (Burma-Edition) words are the anchor.</strong> Each row is one Be word.</p>
+  <p>• <span style="color:#3fb950">Green (nw_match)</span> = NW paired + words identical (case-insensitive)</p>
+  <p>• <span style="color:#d29922">Yellow (nw_mismatch)</span> = NW paired but words differ — genuine textual variant</p>
+  <p>• <span style="color:#f0883e">Orange (nw_sandhi)</span> = iti-sandhi: DTP compound = Be base + Be particle (e.g. DTP <code>gotamanti</code> = Be <code>gotama</code> + <code>nti</code>)</p>
+  <p>• <span style="color:#a371f7">Purple (peyyala_range)</span> = inside peyyāla expansion (one <code>...pa...</code> covers many Be words)</p>
+  <p>• <span style="color:#484f58">Gray (uncovered)</span> = no DTP token maps to this Be word</p>
+  <p>• <strong>nw_delete</strong> = DTP has word but no matching Be word (DTP extra / Be abbreviated)</p>
+  <p>• <strong>both_skip</strong> = <code>*</code> in DTP, no Be consumed (both editions abbreviate)</p>
+  <p>• <span style="color:#3fb950">Green (ebt_match)</span> / <span style="color:#d29922">Yellow (ebt_mismatch)</span> = EBT expanded word aligned via local NW</p>
+  <p>• <strong>ebt_delete</strong> = EBT expanded word with no Be match (most Be words consumed by main NW)</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-color" style="background:#3fb950"></div> nw_match (exact)</div>
+  <div class="legend-item"><div class="legend-color" style="background:#d29922"></div> nw_mismatch (variant)</div>
+  <div class="legend-item"><div class="legend-color" style="background:#f0883e"></div> nw_sandhi (iti-sandhi)</div>
+  <div class="legend-item"><div class="legend-color" style="background:#a371f7"></div> peyyāla range</div>
+  <div class="legend-item"><div class="legend-color" style="background:#484f58"></div> Uncovered (Be extra)</div>
+  <div class="legend-item"><div class="legend-color" style="background:#3fb950;border:2px solid #1f6feb"></div> ebt_match</div>
+  <div class="legend-item"><div class="legend-color" style="background:#d29922;border:2px solid #1f6feb"></div> ebt_mismatch</div>
+</div>
+
+<h2>📋 Per-Sutta Breakdown</h2>
+<table>
+  <thead><tr><th>Be File</th><th>Total</th><th>NW Match</th><th>NW Mismatch</th><th>Sandhi</th><th>NW Delete</th><th>Peyyāla</th><th>Both Skip</th><th>EBT (✓/≠/×)</th><th>Aligned %</th></tr></thead>
+  <tbody><tr>
+      <td>S0101M.MUL0</td>
+      <td class="num">9,092</td>
+      <td class="num good">7,303</td>
+      <td class="num variant">153</td>
+      <td class="num sandhi">55</td>
+      <td class="num">83</td>
+      <td class="num peyyala">27</td>
+      <td class="num">233</td>
+      <td class="num ebt-col">45/16/622</td>
+      <td class="num">83.3%</td>
+    </tr><tr>
+      <td>S0101M.MUL1</td>
+      <td class="num">7,625</td>
+      <td class="num good">6,724</td>
+      <td class="num variant">69</td>
+      <td class="num sandhi">74</td>
+      <td class="num">16</td>
+      <td class="num peyyala">24</td>
+      <td class="num">366</td>
+      <td class="num ebt-col">50/8/41</td>
+      <td class="num">90.8%</td>
+    </tr><tr>
+      <td>S0101M.MUL10</td>
+      <td class="num">2,902</td>
+      <td class="num good">1,556</td>
+      <td class="num variant">68</td>
+      <td class="num sandhi">13</td>
+      <td class="num">17</td>
+      <td class="num peyyala">9</td>
+      <td class="num">50</td>
+      <td class="num ebt-col">193/64/332</td>
+      <td class="num">65.3%</td>
+    </tr><tr>
+      <td>S0101M.MUL11</td>
+      <td class="num">2,056</td>
+      <td class="num good">1,442</td>
+      <td class="num variant">32</td>
+      <td class="num sandhi">15</td>
+      <td class="num">185</td>
+      <td class="num peyyala">7</td>
+      <td class="num">99</td>
+      <td class="num ebt-col">27/18/151</td>
+      <td class="num">74.6%</td>
+    </tr><tr>
+      <td>S0101M.MUL12</td>
+      <td class="num">4,636</td>
+      <td class="num good">2,426</td>
+      <td class="num variant">48</td>
+      <td class="num sandhi">57</td>
+      <td class="num">32</td>
+      <td class="num peyyala">7</td>
+      <td class="num">137</td>
+      <td class="num ebt-col">70/4/1638</td>
+      <td class="num">56.2%</td>
+    </tr><tr>
+      <td>S0101M.MUL2</td>
+      <td class="num">4,494</td>
+      <td class="num good">3,676</td>
+      <td class="num variant">67</td>
+      <td class="num sandhi">57</td>
+      <td class="num">144</td>
+      <td class="num peyyala">13</td>
+      <td class="num">149</td>
+      <td class="num ebt-col">43/10/37</td>
+      <td class="num">85.7%</td>
+    </tr><tr>
+      <td>S0101M.MUL3</td>
+      <td class="num">3,172</td>
+      <td class="num good">2,539</td>
+      <td class="num variant">310</td>
+      <td class="num sandhi">20</td>
+      <td class="num">34</td>
+      <td class="num peyyala">41</td>
+      <td class="num">102</td>
+      <td class="num ebt-col">6/1/35</td>
+      <td class="num">90.7%</td>
+    </tr><tr>
+      <td>S0101M.MUL4</td>
+      <td class="num">4,490</td>
+      <td class="num good">3,691</td>
+      <td class="num variant">321</td>
+      <td class="num sandhi">34</td>
+      <td class="num">105</td>
+      <td class="num peyyala">56</td>
+      <td class="num">172</td>
+      <td class="num ebt-col">15/0/14</td>
+      <td class="num">90.4%</td>
+    </tr><tr>
+      <td>S0101M.MUL5</td>
+      <td class="num">1,825</td>
+      <td class="num good">1,148</td>
+      <td class="num variant">433</td>
+      <td class="num sandhi">27</td>
+      <td class="num">31</td>
+      <td class="num peyyala">8</td>
+      <td class="num">99</td>
+      <td class="num ebt-col">7/1/10</td>
+      <td class="num">88.5%</td>
+    </tr><tr>
+      <td>S0101M.MUL6</td>
+      <td class="num">477</td>
+      <td class="num good">309</td>
+      <td class="num variant">20</td>
+      <td class="num sandhi">23</td>
+      <td class="num">19</td>
+      <td class="num peyyala">5</td>
+      <td class="num">35</td>
+      <td class="num ebt-col">9/0/5</td>
+      <td class="num">75.7%</td>
+    </tr><tr>
+      <td>S0101M.MUL7</td>
+      <td class="num">3,365</td>
+      <td class="num good">2,481</td>
+      <td class="num variant">43</td>
+      <td class="num sandhi">16</td>
+      <td class="num">3</td>
+      <td class="num peyyala">31</td>
+      <td class="num">248</td>
+      <td class="num ebt-col">37/6/297</td>
+      <td class="num">76.8%</td>
+    </tr><tr>
+      <td>S0101M.MUL8</td>
+      <td class="num">5,170</td>
+      <td class="num good">4,072</td>
+      <td class="num variant">77</td>
+      <td class="num sandhi">57</td>
+      <td class="num">35</td>
+      <td class="num peyyala">14</td>
+      <td class="num">144</td>
+      <td class="num ebt-col">50/32/352</td>
+      <td class="num">82.9%</td>
+    </tr><tr>
+      <td>S0101M.MUL9</td>
+      <td class="num">3,681</td>
+      <td class="num good">3,053</td>
+      <td class="num variant">78</td>
+      <td class="num sandhi">34</td>
+      <td class="num">10</td>
+      <td class="num peyyala">25</td>
+      <td class="num">104</td>
+      <td class="num ebt-col">65/31/35</td>
+      <td class="num">88.6%</td>
+    </tr><tr>
+      <td>S0102M.MUL0</td>
+      <td class="num">9,185</td>
+      <td class="num good">8,338</td>
+      <td class="num variant">98</td>
+      <td class="num sandhi">37</td>
+      <td class="num">23</td>
+      <td class="num peyyala">39</td>
+      <td class="num">201</td>
+      <td class="num ebt-col">51/4/83</td>
+      <td class="num">92.8%</td>
+    </tr><tr>
+      <td>S0102M.MUL1</td>
+      <td class="num">3,303</td>
+      <td class="num good">2,837</td>
+      <td class="num variant">24</td>
+      <td class="num sandhi">24</td>
+      <td class="num">3</td>
+      <td class="num peyyala">6</td>
+      <td class="num">68</td>
+      <td class="num ebt-col">12/0/85</td>
+      <td class="num">87.7%</td>
+    </tr><tr>
+      <td>S0102M.MUL2</td>
+      <td class="num">15,867</td>
+      <td class="num good">14,615</td>
+      <td class="num variant">125</td>
+      <td class="num sandhi">73</td>
+      <td class="num">88</td>
+      <td class="num peyyala">29</td>
+      <td class="num">489</td>
+      <td class="num ebt-col">61/6/96</td>
+      <td class="num">93.8%</td>
+    </tr><tr>
+      <td>S0102M.MUL3</td>
+      <td class="num">4,503</td>
+      <td class="num good">4,239</td>
+      <td class="num variant">13</td>
+      <td class="num sandhi">10</td>
+      <td class="num">10</td>
+      <td class="num peyyala">4</td>
+      <td class="num">123</td>
+      <td class="num ebt-col">15/3/18</td>
+      <td class="num">95.0%</td>
+    </tr><tr>
+      <td>S0102M.MUL4</td>
+      <td class="num">2,985</td>
+      <td class="num good">2,748</td>
+      <td class="num variant">22</td>
+      <td class="num sandhi">10</td>
+      <td class="num">11</td>
+      <td class="num peyyala">2</td>
+      <td class="num">123</td>
+      <td class="num ebt-col">15/3/7</td>
+      <td class="num">93.7%</td>
+    </tr><tr>
+      <td>S0102M.MUL5</td>
+      <td class="num">5,165</td>
+      <td class="num good">4,692</td>
+      <td class="num variant">29</td>
+      <td class="num sandhi">34</td>
+      <td class="num">6</td>
+      <td class="num peyyala">4</td>
+      <td class="num">187</td>
+      <td class="num ebt-col">59/12/35</td>
+      <td class="num">93.4%</td>
+    </tr><tr>
+      <td>S0102M.MUL6</td>
+      <td class="num">1,020</td>
+      <td class="num good">980</td>
+      <td class="num variant">4</td>
+      <td class="num sandhi">1</td>
+      <td class="num">0</td>
+      <td class="num peyyala">0</td>
+      <td class="num">16</td>
+      <td class="num ebt-col">3/1/3</td>
+      <td class="num">97.0%</td>
+    </tr><tr>
+      <td>S0102M.MUL7</td>
+      <td class="num">3,520</td>
+      <td class="num good">3,082</td>
+      <td class="num variant">70</td>
+      <td class="num sandhi">11</td>
+      <td class="num">7</td>
+      <td class="num peyyala">2</td>
+      <td class="num">92</td>
+      <td class="num ebt-col">51/6/33</td>
+      <td class="num">91.5%</td>
+    </tr><tr>
+      <td>S0102M.MUL8</td>
+      <td class="num">4,865</td>
+      <td class="num good">3,573</td>
+      <td class="num variant">132</td>
+      <td class="num sandhi">26</td>
+      <td class="num">18</td>
+      <td class="num peyyala">16</td>
+      <td class="num">186</td>
+      <td class="num ebt-col">13/4/317</td>
+      <td class="num">77.0%</td>
+    </tr><tr>
+      <td>S0102M.MUL9</td>
+      <td class="num">7,508</td>
+      <td class="num good">5,709</td>
+      <td class="num variant">754</td>
+      <td class="num sandhi">21</td>
+      <td class="num">185</td>
+      <td class="num peyyala">17</td>
+      <td class="num">361</td>
+      <td class="num ebt-col">60/7/83</td>
+      <td class="num">87.3%</td>
+    </tr><tr>
+      <td>S0103M.MUL0</td>
+      <td class="num">6,518</td>
+      <td class="num good">5,073</td>
+      <td class="num variant">86</td>
+      <td class="num sandhi">30</td>
+      <td class="num">50</td>
+      <td class="num peyyala">5</td>
+      <td class="num">528</td>
+      <td class="num ebt-col">112/12/33</td>
+      <td class="num">81.5%</td>
+    </tr><tr>
+      <td>S0103M.MUL1</td>
+      <td class="num">3,990</td>
+      <td class="num good">3,165</td>
+      <td class="num variant">67</td>
+      <td class="num sandhi">8</td>
+      <td class="num">9</td>
+      <td class="num peyyala">41</td>
+      <td class="num">166</td>
+      <td class="num ebt-col">141/8/47</td>
+      <td class="num">84.9%</td>
+    </tr><tr>
+      <td>S0103M.MUL10</td>
+      <td class="num">6,529</td>
+      <td class="num good">5,262</td>
+      <td class="num variant">394</td>
+      <td class="num sandhi">4</td>
+      <td class="num">147</td>
+      <td class="num peyyala">93</td>
+      <td class="num">448</td>
+      <td class="num ebt-col">7/0/3</td>
+      <td class="num">86.8%</td>
+    </tr><tr>
+      <td>S0103M.MUL2</td>
+      <td class="num">3,568</td>
+      <td class="num good">3,088</td>
+      <td class="num variant">44</td>
+      <td class="num sandhi">12</td>
+      <td class="num">5</td>
+      <td class="num peyyala">13</td>
+      <td class="num">145</td>
+      <td class="num ebt-col">5/0/1</td>
+      <td class="num">88.3%</td>
+    </tr><tr>
+      <td>S0103M.MUL3</td>
+      <td class="num">3,169</td>
+      <td class="num good">2,687</td>
+      <td class="num variant">44</td>
+      <td class="num sandhi">0</td>
+      <td class="num">2</td>
+      <td class="num peyyala">13</td>
+      <td class="num">210</td>
+      <td class="num ebt-col">8/1/6</td>
+      <td class="num">86.5%</td>
+    </tr><tr>
+      <td>S0103M.MUL4</td>
+      <td class="num">2,894</td>
+      <td class="num good">2,492</td>
+      <td class="num variant">45</td>
+      <td class="num sandhi">25</td>
+      <td class="num">0</td>
+      <td class="num peyyala">12</td>
+      <td class="num">111</td>
+      <td class="num ebt-col">19/2/8</td>
+      <td class="num">89.3%</td>
+    </tr><tr>
+      <td>S0103M.MUL5</td>
+      <td class="num">4,398</td>
+      <td class="num good">3,654</td>
+      <td class="num variant">155</td>
+      <td class="num sandhi">29</td>
+      <td class="num">192</td>
+      <td class="num peyyala">20</td>
+      <td class="num">224</td>
+      <td class="num ebt-col">5/0/1</td>
+      <td class="num">87.4%</td>
+    </tr><tr>
+      <td>S0103M.MUL6</td>
+      <td class="num">4,108</td>
+      <td class="num good">3,743</td>
+      <td class="num variant">97</td>
+      <td class="num sandhi">8</td>
+      <td class="num">11</td>
+      <td class="num peyyala">55</td>
+      <td class="num">118</td>
+      <td class="num ebt-col">21/0/11</td>
+      <td class="num">94.2%</td>
+    </tr><tr>
+      <td>S0103M.MUL7</td>
+      <td class="num">1,731</td>
+      <td class="num good">1,635</td>
+      <td class="num variant">8</td>
+      <td class="num sandhi">1</td>
+      <td class="num">0</td>
+      <td class="num peyyala">0</td>
+      <td class="num">52</td>
+      <td class="num ebt-col">0/0/2</td>
+      <td class="num">95.0%</td>
+    </tr><tr>
+      <td>S0103M.MUL8</td>
+      <td class="num">2,720</td>
+      <td class="num good">2,554</td>
+      <td class="num variant">17</td>
+      <td class="num sandhi">2</td>
+      <td class="num">1</td>
+      <td class="num peyyala">13</td>
+      <td class="num">86</td>
+      <td class="num ebt-col">1/0/4</td>
+      <td class="num">94.6%</td>
+    </tr><tr>
+      <td>S0103M.MUL9</td>
+      <td class="num">8,636</td>
+      <td class="num good">6,845</td>
+      <td class="num variant">1,064</td>
+      <td class="num sandhi">14</td>
+      <td class="num">121</td>
+      <td class="num peyyala">83</td>
+      <td class="num">185</td>
+      <td class="num ebt-col">18/1/5</td>
+      <td class="num">92.0%</td>
+    </tr></tbody>
+</table>
+<p class="desc">Aligned % = (nw_match + nw_mismatch + nw_sandhi + ebt_match + ebt_mismatch) / total — tokens with a Be word pair. EBT column: match/mismatch/delete.</p>
+
+<h2>🔬 Be-Anchored Alignment Samples</h2>
+
+<div class="sample">
+      <h3>1. ต้นพระสูตร — Brahmajāla / Paribbājakakathā (IDH_73)</h3>
+      <p class="desc">Be words 0-70 — beginning alignment with NW</p>
+      <p class="be-range">Be array indices: 0–70 of 30936 total | File: S0101M.MUL0</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="match">
+        <td class="idx">0</td>
+        <td class="be-word">Evaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">evaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">1</td>
+        <td class="be-word">me</td>
+        <td class="dtp-col"><span class="dtp-word">me</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">2</td>
+        <td class="be-word">sutaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sutaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">3</td>
+        <td class="be-word">ekaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">ekaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4</td>
+        <td class="be-word">samayaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">samayaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">5</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">6</td>
+        <td class="be-word">antarā</td>
+        <td class="dtp-col"><span class="dtp-word">antarā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">7</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">8</td>
+        <td class="be-word">rājagahaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">rājagahaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">9</td>
+        <td class="be-word">antarā</td>
+        <td class="dtp-col"><span class="dtp-word">antarā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">10</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">11</td>
+        <td class="be-word">nāḷandaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">nāḷandaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">12</td>
+        <td class="be-word">addhānamaggappaṭipanno</td>
+        <td class="dtp-col"><span class="dtp-word">addhānamaggappaṭipanno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">13</td>
+        <td class="be-word">hoti</td>
+        <td class="dtp-col"><span class="dtp-word">hoti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">14</td>
+        <td class="be-word">mahatā</td>
+        <td class="dtp-col"><span class="dtp-word">mahatā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="norm-match">
+        <td class="idx">15</td>
+        <td class="be-word">bhikkhusaṅghena</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhusaṃghena</span></td>
+        <td class="status"><span class="tag tag-norm">≈ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">16</td>
+        <td class="be-word">saddhiṃ</td>
+        <td class="dtp-col"><span class="dtp-word">saddhiṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">17</td>
+        <td class="be-word">pañcamattehi</td>
+        <td class="dtp-col"><span class="dtp-word">pañcamattehi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">18</td>
+        <td class="be-word">bhikkhusatehi</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhusatehi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">19</td>
+        <td class="be-word">Suppiyopi</td>
+        <td class="dtp-col"><span class="dtp-word">suppiyopi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">20</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="dtp-word">kho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">21</td>
+        <td class="be-word">paribbājako</td>
+        <td class="dtp-col"><span class="dtp-word">paribbājako</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">22</td>
+        <td class="be-word">antarā</td>
+        <td class="dtp-col"><span class="dtp-word">antarā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">23</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">24</td>
+        <td class="be-word">rājagahaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">rājagahaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">25</td>
+        <td class="be-word">antarā</td>
+        <td class="dtp-col"><span class="dtp-word">antarā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">26</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">27</td>
+        <td class="be-word">nāḷandaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">nāḷandaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">28</td>
+        <td class="be-word">addhānamaggappaṭipanno</td>
+        <td class="dtp-col"><span class="dtp-word">addhānamaggappaṭipanno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">29</td>
+        <td class="be-word">hoti</td>
+        <td class="dtp-col"><span class="dtp-word">hoti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">30</td>
+        <td class="be-word">saddhiṃ</td>
+        <td class="dtp-col"><span class="dtp-word">saddhiṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">31</td>
+        <td class="be-word">antevāsinā</td>
+        <td class="dtp-col"><span class="dtp-word">antevāsinā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">32</td>
+        <td class="be-word">brahmadattena</td>
+        <td class="dtp-col"><span class="dtp-word">brahmadattena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">33</td>
+        <td class="be-word">māṇavena</td>
+        <td class="dtp-col"><span class="dtp-word">māṇavena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">34</td>
+        <td class="be-word">Tatra</td>
+        <td class="dtp-col"><span class="dtp-word">tatra</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">35</td>
+        <td class="be-word">sudaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sudaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">36</td>
+        <td class="be-word">suppiyo</td>
+        <td class="dtp-col"><span class="dtp-word">suppiyo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">37</td>
+        <td class="be-word">paribbājako</td>
+        <td class="dtp-col"><span class="dtp-word">paribbājako</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">38</td>
+        <td class="be-word">anekapariyāyena</td>
+        <td class="dtp-col"><span class="dtp-word">anekapariyāyena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">39</td>
+        <td class="be-word">buddhassa</td>
+        <td class="dtp-col"><span class="dtp-word">buddhassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">40</td>
+        <td class="be-word">avaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">avaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">41</td>
+        <td class="be-word">bhāsati</td>
+        <td class="dtp-col"><span class="dtp-word">bhāsati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">42</td>
+        <td class="be-word">dhammassa</td>
+        <td class="dtp-col"><span class="dtp-word">dhammassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">43</td>
+        <td class="be-word">avaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">avaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">44</td>
+        <td class="be-word">bhāsati</td>
+        <td class="dtp-col"><span class="dtp-word">bhāsati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="norm-match">
+        <td class="idx">45</td>
+        <td class="be-word">saṅghassa</td>
+        <td class="dtp-col"><span class="dtp-word">saṃghassa</span></td>
+        <td class="status"><span class="tag tag-norm">≈ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">46</td>
+        <td class="be-word">avaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">avaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">47</td>
+        <td class="be-word">bhāsati</td>
+        <td class="dtp-col"><span class="dtp-word">bhāsati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">48</td>
+        <td class="be-word">suppiyassa</td>
+        <td class="dtp-col"><span class="dtp-word">suppiyassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">49</td>
+        <td class="be-word">pana</td>
+        <td class="dtp-col"><span class="dtp-word">pana</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">50</td>
+        <td class="be-word">paribbājakassa</td>
+        <td class="dtp-col"><span class="dtp-word">paribbājakassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">51</td>
+        <td class="be-word">antevāsī</td>
+        <td class="dtp-col"><span class="dtp-word">antevāsī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">52</td>
+        <td class="be-word">brahmadatto</td>
+        <td class="dtp-col"><span class="dtp-word">brahmadatto</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">53</td>
+        <td class="be-word">māṇavo</td>
+        <td class="dtp-col"><span class="dtp-word">māṇavo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">54</td>
+        <td class="be-word">anekapariyāyena</td>
+        <td class="dtp-col"><span class="dtp-word">anekapariyāyena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">55</td>
+        <td class="be-word">buddhassa</td>
+        <td class="dtp-col"><span class="dtp-word">buddhassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">56</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">57</td>
+        <td class="be-word">bhāsati</td>
+        <td class="dtp-col"><span class="dtp-word">bhāsati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">58</td>
+        <td class="be-word">dhammassa</td>
+        <td class="dtp-col"><span class="dtp-word">dhammassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">59</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">60</td>
+        <td class="be-word">bhāsati</td>
+        <td class="dtp-col"><span class="dtp-word">bhāsati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="norm-match">
+        <td class="idx">61</td>
+        <td class="be-word">saṅghassa</td>
+        <td class="dtp-col"><span class="dtp-word">saṃghassa</span></td>
+        <td class="status"><span class="tag tag-norm">≈ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">62</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">63</td>
+        <td class="be-word">bhāsati</td>
+        <td class="dtp-col"><span class="dtp-word">bhāsati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">64</td>
+        <td class="be-word">Itiha</td>
+        <td class="dtp-col"><span class="dtp-word">itiha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">65</td>
+        <td class="be-word">te</td>
+        <td class="dtp-col"><span class="dtp-word">te</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">66</td>
+        <td class="be-word">ubho</td>
+        <td class="dtp-col"><span class="dtp-word">ubho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">67</td>
+        <td class="be-word">ācariyantevāsī</td>
+        <td class="dtp-col"><span class="dtp-word">ācariyantevāsī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">68</td>
+        <td class="be-word">aññamaññassa</td>
+        <td class="dtp-col"><span class="dtp-word">aññamaññassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">69</td>
+        <td class="be-word">ujuvipaccanīkavādā</td>
+        <td class="dtp-col"><span class="dtp-word">ujuvipaccanīkavādā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+<div class="sample">
+      <h3>2. Cūḷasīla reordering — IDH_74 pos 540-610 (the known variant)</h3>
+      <p class="desc">DTP lists sīla items in different order than Be — NW should pair them correctly</p>
+      <p class="be-range">Be array indices: 530–610 of 30936 total | File: S0101M.MUL0</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="match">
+        <td class="idx">530</td>
+        <td class="be-word">puthujjano</td>
+        <td class="dtp-col"><span class="dtp-word">puthujjano</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">531</td>
+        <td class="be-word">tathāgatassa</td>
+        <td class="dtp-col"><span class="dtp-word">tathāgatassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">532</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">533</td>
+        <td class="be-word">vadamāno</td>
+        <td class="dtp-col"><span class="dtp-word">vadamāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">534</td>
+        <td class="be-word">vadeyya</td>
+        <td class="dtp-col"><span class="dtp-word">vadeyya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">535</td>
+        <td class="be-word">Pāṇātipātaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">pāṇātipātaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">536</td>
+        <td class="be-word">pahāya</td>
+        <td class="dtp-col"><span class="dtp-word">pahāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">537</td>
+        <td class="be-word">pāṇātipātā</td>
+        <td class="dtp-col"><span class="dtp-word">pāṇātipātā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">538</td>
+        <td class="be-word">paṭivirato</td>
+        <td class="dtp-col"><span class="dtp-word">paṭivirato</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">539</td>
+        <td class="be-word">samaṇo</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">540</td>
+        <td class="be-word">gotamo</td>
+        <td class="dtp-col"><span class="dtp-word">gotamo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">541</td>
+        <td class="be-word">nihitadaṇḍo</td>
+        <td class="dtp-col"><span class="dtp-word">nihitadaṇḍo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">542</td>
+        <td class="be-word">nihitasattho</td>
+        <td class="dtp-col"><span class="dtp-word">nihitasattho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">543</td>
+        <td class="be-word">lajjī</td>
+        <td class="dtp-col"><span class="dtp-word">lajjī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">544</td>
+        <td class="be-word">dayāpanno</td>
+        <td class="dtp-col"><span class="dtp-word">dayāpanno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">545</td>
+        <td class="be-word">sabbapāṇabhūtahitānukampī</td>
+        <td class="dtp-col"><span class="dtp-word">sabbapāṇabhūtahitānukampī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">546</td>
+        <td class="be-word">viharatī</td>
+        <td class="dtp-col"><span class="dtp-word">viharatī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">547</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="dtp-word">ti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">548</td>
+        <td class="be-word">iti</td>
+        <td class="dtp-col"><span class="dtp-word">iti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">549</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">550</td>
+        <td class="be-word">hi</td>
+        <td class="dtp-col"><span class="dtp-word">hi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">551</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhave</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">552</td>
+        <td class="be-word">puthujjano</td>
+        <td class="dtp-col"><span class="dtp-word">puthujjano</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">553</td>
+        <td class="be-word">tathāgatassa</td>
+        <td class="dtp-col"><span class="dtp-word">tathāgatassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">554</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">555</td>
+        <td class="be-word">vadamāno</td>
+        <td class="dtp-col"><span class="dtp-word">vadamāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">556</td>
+        <td class="be-word">vadeyya</td>
+        <td class="dtp-col"><span class="dtp-word">vadeyya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">557</td>
+        <td class="be-word">Adinnādānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">adinnādānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">558</td>
+        <td class="be-word">pahāya</td>
+        <td class="dtp-col"><span class="dtp-word">pahāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">559</td>
+        <td class="be-word">adinnādānā</td>
+        <td class="dtp-col"><span class="dtp-word">adinnādānā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">560</td>
+        <td class="be-word">paṭivirato</td>
+        <td class="dtp-col"><span class="dtp-word">paṭivirato</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">561</td>
+        <td class="be-word">samaṇo</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">562</td>
+        <td class="be-word">gotamo</td>
+        <td class="dtp-col"><span class="dtp-word">gotamo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">563</td>
+        <td class="be-word">dinnādāyī</td>
+        <td class="dtp-col"><span class="dtp-word">dinnādāyī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">564</td>
+        <td class="be-word">dinnapāṭikaṅkhī</td>
+        <td class="dtp-col"><span class="dtp-word">dinnapāṭikaṅkhī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">565</td>
+        <td class="be-word">athenena</td>
+        <td class="dtp-col"><span class="dtp-word">athenena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">566</td>
+        <td class="be-word">sucibhūtena</td>
+        <td class="dtp-col"><span class="dtp-word">sucibhūtena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">567</td>
+        <td class="be-word">attanā</td>
+        <td class="dtp-col"><span class="dtp-word">attanā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">568</td>
+        <td class="be-word">viharatī</td>
+        <td class="dtp-col"><span class="dtp-word">viharatī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">569</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="dtp-word">ti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">570</td>
+        <td class="be-word">iti</td>
+        <td class="dtp-col"><span class="dtp-word">iti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">571</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">572</td>
+        <td class="be-word">hi</td>
+        <td class="dtp-col"><span class="dtp-word">hi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">573</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhave</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">574</td>
+        <td class="be-word">puthujjano</td>
+        <td class="dtp-col"><span class="dtp-word">puthujjano</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">575</td>
+        <td class="be-word">tathāgatassa</td>
+        <td class="dtp-col"><span class="dtp-word">tathāgatassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">576</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">577</td>
+        <td class="be-word">vadamāno</td>
+        <td class="dtp-col"><span class="dtp-word">vadamāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">578</td>
+        <td class="be-word">vadeyya</td>
+        <td class="dtp-col"><span class="dtp-word">vadeyya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">579</td>
+        <td class="be-word">Abrahmacariyaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">abrahmacariyaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">580</td>
+        <td class="be-word">pahāya</td>
+        <td class="dtp-col"><span class="dtp-word">pahāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">581</td>
+        <td class="be-word">brahmacārī</td>
+        <td class="dtp-col"><span class="dtp-word">brahmacārī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">582</td>
+        <td class="be-word">samaṇo</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">583</td>
+        <td class="be-word">gotamo</td>
+        <td class="dtp-col"><span class="dtp-word">gotamo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">584</td>
+        <td class="be-word">ārācārī</td>
+        <td class="dtp-col"><span class="dtp-word">ārācārī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">585</td>
+        <td class="be-word">virato</td>
+        <td class="dtp-col"><span class="dtp-word">virato</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">586</td>
+        <td class="be-word">methunā</td>
+        <td class="dtp-col"><span class="dtp-word">methunā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">587</td>
+        <td class="be-word">gāmadhammā</td>
+        <td class="dtp-col"><span class="dtp-word">gāmadhammā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">588</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="dtp-word">ti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">589</td>
+        <td class="be-word">iti</td>
+        <td class="dtp-col"><span class="dtp-word">iti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">590</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">591</td>
+        <td class="be-word">hi</td>
+        <td class="dtp-col"><span class="dtp-word">hi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">592</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhave</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">593</td>
+        <td class="be-word">puthujjano</td>
+        <td class="dtp-col"><span class="dtp-word">puthujjano</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">594</td>
+        <td class="be-word">tathāgatassa</td>
+        <td class="dtp-col"><span class="dtp-word">tathāgatassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">595</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">596</td>
+        <td class="be-word">vadamāno</td>
+        <td class="dtp-col"><span class="dtp-word">vadamāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">597</td>
+        <td class="be-word">vadeyya</td>
+        <td class="dtp-col"><span class="dtp-word">vadeyya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">598</td>
+        <td class="be-word">Musāvādaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">musāvādaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">599</td>
+        <td class="be-word">pahāya</td>
+        <td class="dtp-col"><span class="dtp-word">pahāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">600</td>
+        <td class="be-word">musāvādā</td>
+        <td class="dtp-col"><span class="dtp-word">musāvādā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">601</td>
+        <td class="be-word">paṭivirato</td>
+        <td class="dtp-col"><span class="dtp-word">paṭivirato</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">602</td>
+        <td class="be-word">samaṇo</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">603</td>
+        <td class="be-word">gotamo</td>
+        <td class="dtp-col"><span class="dtp-word">gotamo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">604</td>
+        <td class="be-word">saccavādī</td>
+        <td class="dtp-col"><span class="dtp-word">saccavādī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">605</td>
+        <td class="be-word">saccasandho</td>
+        <td class="dtp-col"><span class="dtp-word">saccasandho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">606</td>
+        <td class="be-word">theto</td>
+        <td class="dtp-col"><span class="dtp-word">theto</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">607</td>
+        <td class="be-word">paccayiko</td>
+        <td class="dtp-col"><span class="dtp-word">paccayiko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">608</td>
+        <td class="be-word">avisaṃvādako</td>
+        <td class="dtp-col"><span class="dtp-word">avisaṃvādako</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">609</td>
+        <td class="be-word">lokassā</td>
+        <td class="dtp-col"><span class="dtp-word">lokassā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+<div class="sample">
+      <h3>3. Peyyāla boundary — IDH_81 with heavy peyyāla markers</h3>
+      <p class="desc">Section 9 of Brahmajāla — 15 peyyāla markers, shows NW alignment between them</p>
+      <p class="be-range">Be array indices: 4050–4120 of 30936 total | File: S0101M.MUL0</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="match">
+        <td class="idx">4050</td>
+        <td class="be-word">paṇḍitavedanīyā</td>
+        <td class="dtp-col"><span class="dtp-word">paṇḍitavedanīyā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4051</td>
+        <td class="be-word">ye</td>
+        <td class="dtp-col"><span class="dtp-word">ye</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4052</td>
+        <td class="be-word">tathāgato</td>
+        <td class="dtp-col"><span class="dtp-word">tathāgato</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4053</td>
+        <td class="be-word">sayaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sayaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4054</td>
+        <td class="be-word">abhiññā</td>
+        <td class="dtp-col"><span class="dtp-word">abhiññā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4055</td>
+        <td class="be-word">sacchikatvā</td>
+        <td class="dtp-col"><span class="dtp-word">sacchikatvā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4056</td>
+        <td class="be-word">pavedeti</td>
+        <td class="dtp-col"><span class="dtp-word">pavedeti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4057</td>
+        <td class="be-word">yehi</td>
+        <td class="dtp-col"><span class="dtp-word">yehi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4058</td>
+        <td class="be-word">tathāgatassa</td>
+        <td class="dtp-col"><span class="dtp-word">tathāgatassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4059</td>
+        <td class="be-word">yathābhuccaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">yathābhuccaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4060</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vaṇṇaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4061</td>
+        <td class="be-word">sammā</td>
+        <td class="dtp-col"><span class="dtp-word">sammā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4062</td>
+        <td class="be-word">vadamānā</td>
+        <td class="dtp-col"><span class="dtp-word">vadamānā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4063</td>
+        <td class="be-word">vadeyyuṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vadeyyuṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4064</td>
+        <td class="be-word">Santi</td>
+        <td class="dtp-col"><span class="dtp-word">santi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4065</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhave</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4066</td>
+        <td class="be-word">eke</td>
+        <td class="dtp-col"><span class="dtp-word">eke</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4067</td>
+        <td class="be-word">samaṇabrāhmaṇā</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇabrāhmaṇā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4068</td>
+        <td class="be-word">amarāvikkhepikā</td>
+        <td class="dtp-col"><span class="dtp-word">amarāvikkhepikā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4069</td>
+        <td class="be-word">tattha</td>
+        <td class="dtp-col"><span class="dtp-word">tattha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4070</td>
+        <td class="be-word">tattha</td>
+        <td class="dtp-col"><span class="dtp-word">tattha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4071</td>
+        <td class="be-word">pañhaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">pañhaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4072</td>
+        <td class="be-word">puṭṭhā</td>
+        <td class="dtp-col"><span class="dtp-word">puṭṭhā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4073</td>
+        <td class="be-word">samānā</td>
+        <td class="dtp-col"><span class="dtp-word">samānā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4074</td>
+        <td class="be-word">vācāvikkhepaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vācāvikkhepaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4075</td>
+        <td class="be-word">āpajjanti</td>
+        <td class="dtp-col"><span class="dtp-word">āpajjanti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4076</td>
+        <td class="be-word">amarāvikkhepaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">amarāvikkhepaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4077</td>
+        <td class="be-word">catūhi</td>
+        <td class="dtp-col"><span class="dtp-word">catūhi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4078</td>
+        <td class="be-word">vatthūhi</td>
+        <td class="dtp-col"><span class="dtp-word">vatthūhi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4079</td>
+        <td class="be-word">Te</td>
+        <td class="dtp-col"><span class="dtp-word">te</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4080</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4081</td>
+        <td class="be-word">bhonto</td>
+        <td class="dtp-col"><span class="dtp-word">bhonto</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4082</td>
+        <td class="be-word">samaṇabrāhmaṇā</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇabrāhmaṇā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4083</td>
+        <td class="be-word">kimāgamma</td>
+        <td class="dtp-col"><span class="dtp-word">kimāgamma</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4084</td>
+        <td class="be-word">kimārabbha</td>
+        <td class="dtp-col"><span class="dtp-word">kimārabbha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4085</td>
+        <td class="be-word">amarāvikkhepikā</td>
+        <td class="dtp-col"><span class="dtp-word">amarāvikkhepikā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4086</td>
+        <td class="be-word">tattha</td>
+        <td class="dtp-col"><span class="dtp-word">tattha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4087</td>
+        <td class="be-word">tattha</td>
+        <td class="dtp-col"><span class="dtp-word">tattha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4088</td>
+        <td class="be-word">pañhaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">pañhaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4089</td>
+        <td class="be-word">puṭṭhā</td>
+        <td class="dtp-col"><span class="dtp-word">puṭṭhā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4090</td>
+        <td class="be-word">samānā</td>
+        <td class="dtp-col"><span class="dtp-word">samānā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4091</td>
+        <td class="be-word">vācāvikkhepaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">vācāvikkhepaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4092</td>
+        <td class="be-word">āpajjanti</td>
+        <td class="dtp-col"><span class="dtp-word">āpajjanti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4093</td>
+        <td class="be-word">amarāvikkhepaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">amarāvikkhepaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4094</td>
+        <td class="be-word">catūhi</td>
+        <td class="dtp-col"><span class="dtp-word">catūhi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4095</td>
+        <td class="be-word">vatthūhi</td>
+        <td class="dtp-col"><span class="dtp-word">vatthūhi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4096</td>
+        <td class="be-word">Idha</td>
+        <td class="dtp-col"><span class="dtp-word">idha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4097</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhave</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4098</td>
+        <td class="be-word">ekacco</td>
+        <td class="dtp-col"><span class="dtp-word">ekacco</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4099</td>
+        <td class="be-word">samaṇo</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4100</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4101</td>
+        <td class="be-word">brāhmaṇo</td>
+        <td class="dtp-col"><span class="dtp-word">brāhmaṇo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4102</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4103</td>
+        <td class="be-word">idaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">idaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="sandhi">
+        <td class="idx">4104</td>
+        <td class="be-word">kusala</td>
+        <td class="dtp-col"><span class="dtp-word">kusalanti</span> <span class="sandhi-indicator">⟵ base</span></td>
+        <td class="status"><span class="tag tag-sandhi">⚡ sandhi</span></td>
+      </tr><tr class="sandhi">
+        <td class="idx">4105</td>
+        <td class="be-word">nti</td>
+        <td class="dtp-col"><span class="dtp-word">kusalanti</span> <span class="sandhi-indicator">⟵ particle</span></td>
+        <td class="status"><span class="tag tag-sandhi">⚡ sandhi</span></td>
+      </tr><tr class="match">
+        <td class="idx">4106</td>
+        <td class="be-word">yathābhūtaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">yathābhūtaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4107</td>
+        <td class="be-word">nappajānāti</td>
+        <td class="dtp-col"><span class="dtp-word">nappajānāti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4108</td>
+        <td class="be-word">idaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">idaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="sandhi">
+        <td class="idx">4109</td>
+        <td class="be-word">akusala</td>
+        <td class="dtp-col"><span class="dtp-word">akusalanti</span> <span class="sandhi-indicator">⟵ base</span></td>
+        <td class="status"><span class="tag tag-sandhi">⚡ sandhi</span></td>
+      </tr><tr class="sandhi">
+        <td class="idx">4110</td>
+        <td class="be-word">nti</td>
+        <td class="dtp-col"><span class="dtp-word">akusalanti</span> <span class="sandhi-indicator">⟵ particle</span></td>
+        <td class="status"><span class="tag tag-sandhi">⚡ sandhi</span></td>
+      </tr><tr class="match">
+        <td class="idx">4111</td>
+        <td class="be-word">yathābhūtaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">yathābhūtaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4112</td>
+        <td class="be-word">nappajānāti</td>
+        <td class="dtp-col"><span class="dtp-word">nappajānāti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4113</td>
+        <td class="be-word">Tassa</td>
+        <td class="dtp-col"><span class="dtp-word">tassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4114</td>
+        <td class="be-word">evaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">evaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4115</td>
+        <td class="be-word">hoti</td>
+        <td class="dtp-col"><span class="dtp-word">hoti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4116</td>
+        <td class="be-word">ahaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">ahaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4117</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="dtp-word">kho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4118</td>
+        <td class="be-word">idaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">idaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="sandhi">
+        <td class="idx">4119</td>
+        <td class="be-word">kusala</td>
+        <td class="dtp-col"><span class="dtp-word">kusalanti</span> <span class="sandhi-indicator">⟵ base</span></td>
+        <td class="status"><span class="tag tag-sandhi">⚡ sandhi</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+<div class="sample">
+      <h3>4. Be compound tokens — loko…pe… area</h3>
+      <p class="desc">Be has abbreviated compounds like loko…pe… that DTP separates — NW handles as mismatch</p>
+      <p class="be-range">Be array indices: 4635–4665 of 30936 total | File: S0101M.MUL0</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="match">
+        <td class="idx">4635</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4636</td>
+        <td class="be-word">paro</td>
+        <td class="dtp-col"><span class="dtp-word">paro</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="variant">
+        <td class="idx">4637</td>
+        <td class="be-word">loko…pe…</td>
+        <td class="dtp-col"><span class="dtp-word">loko</span> <span class="variant-indicator">≠</span></td>
+        <td class="status"><span class="tag tag-variant">≠ nw_mismatch</span></td>
+      </tr><tr class="match">
+        <td class="idx">4638</td>
+        <td class="be-word">nevatthi</td>
+        <td class="dtp-col"><span class="dtp-word">nevatthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4639</td>
+        <td class="be-word">na</td>
+        <td class="dtp-col"><span class="dtp-word">na</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4640</td>
+        <td class="be-word">natthi</td>
+        <td class="dtp-col"><span class="dtp-word">natthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4641</td>
+        <td class="be-word">paro</td>
+        <td class="dtp-col"><span class="dtp-word">paro</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="variant">
+        <td class="idx">4642</td>
+        <td class="be-word">loko…pe…</td>
+        <td class="dtp-col"><span class="dtp-word">loko</span> <span class="variant-indicator">≠</span></td>
+        <td class="status"><span class="tag tag-variant">≠ nw_mismatch</span></td>
+      </tr><tr class="match">
+        <td class="idx">4643</td>
+        <td class="be-word">atthi</td>
+        <td class="dtp-col"><span class="dtp-word">atthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4644</td>
+        <td class="be-word">sattā</td>
+        <td class="dtp-col"><span class="dtp-word">sattā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4645</td>
+        <td class="be-word">opapātikā</td>
+        <td class="dtp-col"><span class="dtp-word">opapātikā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="in-peyyala">
+        <td class="idx">4646</td>
+        <td class="be-word">…pe…</td>
+        <td class="dtp-col"><span class="range-cover">...pa... covers 1 Be words</span></td>
+        <td class="status"><span class="tag tag-peyyala">peyyāla</span></td>
+      </tr><tr class="match">
+        <td class="idx">4647</td>
+        <td class="be-word">natthi</td>
+        <td class="dtp-col"><span class="dtp-word">natthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4648</td>
+        <td class="be-word">sattā</td>
+        <td class="dtp-col"><span class="dtp-word">sattā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="variant">
+        <td class="idx">4649</td>
+        <td class="be-word">opapātikā…pe…</td>
+        <td class="dtp-col"><span class="dtp-word">opapātikā</span> <span class="variant-indicator">≠</span></td>
+        <td class="status"><span class="tag tag-variant">≠ nw_mismatch</span></td>
+      </tr><tr class="match">
+        <td class="idx">4650</td>
+        <td class="be-word">atthi</td>
+        <td class="dtp-col"><span class="dtp-word">atthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4651</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4652</td>
+        <td class="be-word">natthi</td>
+        <td class="dtp-col"><span class="dtp-word">natthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4653</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="dtp-word">ca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4654</td>
+        <td class="be-word">sattā</td>
+        <td class="dtp-col"><span class="dtp-word">sattā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="variant">
+        <td class="idx">4655</td>
+        <td class="be-word">opapātikā…pe…</td>
+        <td class="dtp-col"><span class="dtp-word">opapātikā</span> <span class="variant-indicator">≠</span></td>
+        <td class="status"><span class="tag tag-variant">≠ nw_mismatch</span></td>
+      </tr><tr class="match">
+        <td class="idx">4656</td>
+        <td class="be-word">nevatthi</td>
+        <td class="dtp-col"><span class="dtp-word">nevatthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4657</td>
+        <td class="be-word">na</td>
+        <td class="dtp-col"><span class="dtp-word">na</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4658</td>
+        <td class="be-word">natthi</td>
+        <td class="dtp-col"><span class="dtp-word">natthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4659</td>
+        <td class="be-word">sattā</td>
+        <td class="dtp-col"><span class="dtp-word">sattā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="variant">
+        <td class="idx">4660</td>
+        <td class="be-word">opapātikā…pe…</td>
+        <td class="dtp-col"><span class="dtp-word">opapātikā</span> <span class="variant-indicator">≠</span></td>
+        <td class="status"><span class="tag tag-variant">≠ nw_mismatch</span></td>
+      </tr><tr class="match">
+        <td class="idx">4661</td>
+        <td class="be-word">atthi</td>
+        <td class="dtp-col"><span class="dtp-word">atthi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4662</td>
+        <td class="be-word">sukatadukkaṭānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sukatadukkaṭānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4663</td>
+        <td class="be-word">kammānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">kammānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4664</td>
+        <td class="be-word">phalaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">phalaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+<div class="sample">
+      <h3>5. Mahāsatipaṭṭhāna (S0102M.MUL8) — beginning</h3>
+      <p class="desc">Satipaṭṭhāna opening alignment with NW</p>
+      <p class="be-range">Be array indices: 0–70 of 15244 total | File: S0102M.MUL8</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="uncovered">
+        <td class="idx">0</td>
+        <td class="be-word">Evaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="variant">
+        <td class="idx">1</td>
+        <td class="be-word">me</td>
+        <td class="dtp-col"><span class="dtp-word">evam</span> <span class="variant-indicator">≠</span></td>
+        <td class="status"><span class="tag tag-variant">≠ nw_mismatch</span></td>
+      </tr><tr class="match">
+        <td class="idx">2</td>
+        <td class="be-word">sutaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sutaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">3</td>
+        <td class="be-word">ekaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">ekaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4</td>
+        <td class="be-word">samayaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">samayaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">5</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">6</td>
+        <td class="be-word">kurūsu</td>
+        <td class="dtp-col"><span class="dtp-word">kurūsu</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">7</td>
+        <td class="be-word">viharati</td>
+        <td class="dtp-col"><span class="dtp-word">viharati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">8</td>
+        <td class="be-word">kammāsadhammaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">kammāsadhammaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">9</td>
+        <td class="be-word">nāma</td>
+        <td class="dtp-col"><span class="dtp-word">nāma</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">10</td>
+        <td class="be-word">kurūnaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">kurūnaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">11</td>
+        <td class="be-word">nigamo</td>
+        <td class="dtp-col"><span class="dtp-word">nigamo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">12</td>
+        <td class="be-word">Tatra</td>
+        <td class="dtp-col"><span class="dtp-word">tatra</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">13</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="dtp-word">kho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">14</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">15</td>
+        <td class="be-word">bhikkhū</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhū</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">16</td>
+        <td class="be-word">āmantesi</td>
+        <td class="dtp-col"><span class="dtp-word">āmantesi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">17</td>
+        <td class="be-word">bhikkhavo</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhavo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">18</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="dtp-word">ti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">19</td>
+        <td class="be-word">Bhaddante</td>
+        <td class="dtp-col"><span class="dtp-word">bhaddante</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">20</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="dtp-word">ti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">21</td>
+        <td class="be-word">te</td>
+        <td class="dtp-col"><span class="dtp-word">te</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">22</td>
+        <td class="be-word">bhikkhū</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhū</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">23</td>
+        <td class="be-word">bhagavato</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavato</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">24</td>
+        <td class="be-word">paccassosuṃ</td>
+        <td class="dtp-col"><span class="dtp-word">paccassosuṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">25</td>
+        <td class="be-word">Bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">26</td>
+        <td class="be-word">etadavoca</td>
+        <td class="dtp-col"><span class="dtp-word">etadavoca</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">27</td>
+        <td class="be-word">Ekāyano</td>
+        <td class="dtp-col"><span class="dtp-word">ekāyano</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">28</td>
+        <td class="be-word">ayaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">ayaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">29</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhave</span></td>
+        <td class="status"><span class="tag tag-match">✓ ebt_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">30</td>
+        <td class="be-word">maggo</td>
+        <td class="dtp-col"><span class="dtp-word">maggo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">31</td>
+        <td class="be-word">sattānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sattānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">32</td>
+        <td class="be-word">visuddhiyā</td>
+        <td class="dtp-col"><span class="dtp-word">visuddhiyā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">33</td>
+        <td class="be-word">sokaparidevānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sokaparidevānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">34</td>
+        <td class="be-word">samatikkamāya</td>
+        <td class="dtp-col"><span class="dtp-word">samatikkamāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">35</td>
+        <td class="be-word">dukkhadomanassānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">dukkhadomanassānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">36</td>
+        <td class="be-word">atthaṅgamāya</td>
+        <td class="dtp-col"><span class="dtp-word">atthaṅgamāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">37</td>
+        <td class="be-word">ñāyassa</td>
+        <td class="dtp-col"><span class="dtp-word">ñāyassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">38</td>
+        <td class="be-word">adhigamāya</td>
+        <td class="dtp-col"><span class="dtp-word">adhigamāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">39</td>
+        <td class="be-word">nibbānassa</td>
+        <td class="dtp-col"><span class="dtp-word">nibbānassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">40</td>
+        <td class="be-word">sacchikiriyāya</td>
+        <td class="dtp-col"><span class="dtp-word">sacchikiriyāya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">41</td>
+        <td class="be-word">yadidaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">yadidaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">42</td>
+        <td class="be-word">cattāro</td>
+        <td class="dtp-col"><span class="dtp-word">cattāro</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">43</td>
+        <td class="be-word">satipaṭṭhānā</td>
+        <td class="dtp-col"><span class="dtp-word">satipaṭṭhānā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">44</td>
+        <td class="be-word">Katame</td>
+        <td class="dtp-col"><span class="dtp-word">katame</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">45</td>
+        <td class="be-word">cattāro</td>
+        <td class="dtp-col"><span class="dtp-word">cattāro</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">46</td>
+        <td class="be-word">Idha</td>
+        <td class="dtp-col"><span class="dtp-word">idha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">47</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhave</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">48</td>
+        <td class="be-word">bhikkhu</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhu</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">49</td>
+        <td class="be-word">kāye</td>
+        <td class="dtp-col"><span class="dtp-word">kāye</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">50</td>
+        <td class="be-word">kāyānupassī</td>
+        <td class="dtp-col"><span class="dtp-word">kāyānupassī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">51</td>
+        <td class="be-word">viharati</td>
+        <td class="dtp-col"><span class="dtp-word">viharati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">52</td>
+        <td class="be-word">ātāpī</td>
+        <td class="dtp-col"><span class="dtp-word">ātāpī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">53</td>
+        <td class="be-word">sampajāno</td>
+        <td class="dtp-col"><span class="dtp-word">sampajāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">54</td>
+        <td class="be-word">satimā</td>
+        <td class="dtp-col"><span class="dtp-word">satimā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">55</td>
+        <td class="be-word">vineyya</td>
+        <td class="dtp-col"><span class="dtp-word">vineyya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">56</td>
+        <td class="be-word">loke</td>
+        <td class="dtp-col"><span class="dtp-word">loke</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">57</td>
+        <td class="be-word">abhijjhādomanassaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">abhijjhādomanassaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">58</td>
+        <td class="be-word">vedanāsu</td>
+        <td class="dtp-col"><span class="dtp-word">vedanāsu</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">59</td>
+        <td class="be-word">vedanānupassī</td>
+        <td class="dtp-col"><span class="dtp-word">vedanānupassī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">60</td>
+        <td class="be-word">viharati</td>
+        <td class="dtp-col"><span class="dtp-word">viharati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">61</td>
+        <td class="be-word">ātāpī</td>
+        <td class="dtp-col"><span class="dtp-word">ātāpī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">62</td>
+        <td class="be-word">sampajāno</td>
+        <td class="dtp-col"><span class="dtp-word">sampajāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">63</td>
+        <td class="be-word">satimā</td>
+        <td class="dtp-col"><span class="dtp-word">satimā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">64</td>
+        <td class="be-word">vineyya</td>
+        <td class="dtp-col"><span class="dtp-word">vineyya</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">65</td>
+        <td class="be-word">loke</td>
+        <td class="dtp-col"><span class="dtp-word">loke</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">66</td>
+        <td class="be-word">abhijjhādomanassaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">abhijjhādomanassaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">67</td>
+        <td class="be-word">citte</td>
+        <td class="dtp-col"><span class="dtp-word">citte</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">68</td>
+        <td class="be-word">cittānupassī</td>
+        <td class="dtp-col"><span class="dtp-word">cittānupassī</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">69</td>
+        <td class="be-word">viharati</td>
+        <td class="dtp-col"><span class="dtp-word">viharati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+<div class="sample">
+      <h3>6. Saṅgītisutta (S0103M.MUL9) — heavy peyyāla+variant sutta</h3>
+      <p class="desc">Saṅgīti has 83 peyyāla + 2154 nw_mismatch — shows variant-heavy alignment</p>
+      <p class="be-range">Be array indices: 0–80 of 33256 total | File: S0103M.MUL9</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="match">
+        <td class="idx">0</td>
+        <td class="be-word">Evaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">Evaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">1</td>
+        <td class="be-word">me</td>
+        <td class="dtp-col"><span class="dtp-word">me</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">2</td>
+        <td class="be-word">sutaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sutaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">3</td>
+        <td class="be-word">ekaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">ekaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">4</td>
+        <td class="be-word">samayaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">samayaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">5</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">6</td>
+        <td class="be-word">mallesu</td>
+        <td class="dtp-col"><span class="dtp-word">mallesu</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">7</td>
+        <td class="be-word">cārikaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">cārikaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">8</td>
+        <td class="be-word">caramāno</td>
+        <td class="dtp-col"><span class="dtp-word">caramāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">9</td>
+        <td class="be-word">mahatā</td>
+        <td class="dtp-col"><span class="dtp-word">mahatā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="norm-match">
+        <td class="idx">10</td>
+        <td class="be-word">bhikkhusaṅghena</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhusaṃghena</span></td>
+        <td class="status"><span class="tag tag-norm">≈ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">11</td>
+        <td class="be-word">saddhiṃ</td>
+        <td class="dtp-col"><span class="dtp-word">saddhiṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">12</td>
+        <td class="be-word">pañcamattehi</td>
+        <td class="dtp-col"><span class="dtp-word">pañcamattehi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">13</td>
+        <td class="be-word">bhikkhusatehi</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhusatehi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">14</td>
+        <td class="be-word">yena</td>
+        <td class="dtp-col"><span class="dtp-word">yena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">15</td>
+        <td class="be-word">pāvā</td>
+        <td class="dtp-col"><span class="dtp-word">pāvā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">16</td>
+        <td class="be-word">nāma</td>
+        <td class="dtp-col"><span class="dtp-word">nāma</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">17</td>
+        <td class="be-word">mallānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">mallānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">18</td>
+        <td class="be-word">nagaraṃ</td>
+        <td class="dtp-col"><span class="dtp-word">nagaraṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">19</td>
+        <td class="be-word">tadavasari</td>
+        <td class="dtp-col"><span class="dtp-word">tadavasari</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">20</td>
+        <td class="be-word">Tatra</td>
+        <td class="dtp-col"><span class="dtp-word">Tatra</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">21</td>
+        <td class="be-word">sudaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sudaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">22</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">23</td>
+        <td class="be-word">pāvāyaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">pāvāyaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">24</td>
+        <td class="be-word">viharati</td>
+        <td class="dtp-col"><span class="dtp-word">viharati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">25</td>
+        <td class="be-word">cundassa</td>
+        <td class="dtp-col"><span class="dtp-word">cundassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">26</td>
+        <td class="be-word">kammāraputtassa</td>
+        <td class="dtp-col"><span class="dtp-word">kammāraputtassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">27</td>
+        <td class="be-word">ambavane</td>
+        <td class="dtp-col"><span class="dtp-word">ambavane</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">28</td>
+        <td class="be-word">Tena</td>
+        <td class="dtp-col"><span class="dtp-word">Tena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">29</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="dtp-word">kho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">30</td>
+        <td class="be-word">pana</td>
+        <td class="dtp-col"><span class="dtp-word">pana</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">31</td>
+        <td class="be-word">samayena</td>
+        <td class="dtp-col"><span class="dtp-word">samayena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">32</td>
+        <td class="be-word">pāveyyakānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">pāveyyakānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">33</td>
+        <td class="be-word">mallānaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">mallānaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">34</td>
+        <td class="be-word">ubbhatakaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">ubbhatakaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">35</td>
+        <td class="be-word">nāma</td>
+        <td class="dtp-col"><span class="dtp-word">nāma</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">36</td>
+        <td class="be-word">navaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">navaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">37</td>
+        <td class="be-word">sandhāgāraṃ</td>
+        <td class="dtp-col"><span class="dtp-word">sandhāgāraṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">38</td>
+        <td class="be-word">acirakāritaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">acirakāritaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">39</td>
+        <td class="be-word">hoti</td>
+        <td class="dtp-col"><span class="dtp-word">hoti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">40</td>
+        <td class="be-word">anajjhāvuṭṭhaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">anajjhāvuṭṭhaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">41</td>
+        <td class="be-word">samaṇena</td>
+        <td class="dtp-col"><span class="dtp-word">samaṇena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">42</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">43</td>
+        <td class="be-word">brāhmaṇena</td>
+        <td class="dtp-col"><span class="dtp-word">brāhmaṇena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">44</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">45</td>
+        <td class="be-word">kenaci</td>
+        <td class="dtp-col"><span class="dtp-word">kenaci</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">46</td>
+        <td class="be-word">vā</td>
+        <td class="dtp-col"><span class="dtp-word">vā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">47</td>
+        <td class="be-word">manussabhūtena</td>
+        <td class="dtp-col"><span class="dtp-word">manussabhūtena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">48</td>
+        <td class="be-word">Assosuṃ</td>
+        <td class="dtp-col"><span class="dtp-word">Assosuṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">49</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="dtp-word">kho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">50</td>
+        <td class="be-word">pāveyyakā</td>
+        <td class="dtp-col"><span class="dtp-word">pāveyyakā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">51</td>
+        <td class="be-word">mallā</td>
+        <td class="dtp-col"><span class="dtp-word">mallā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">52</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">53</td>
+        <td class="be-word">kira</td>
+        <td class="dtp-col"><span class="dtp-word">kira</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">54</td>
+        <td class="be-word">mallesu</td>
+        <td class="dtp-col"><span class="dtp-word">mallesu</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">55</td>
+        <td class="be-word">cārikaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">cārikaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">56</td>
+        <td class="be-word">caramāno</td>
+        <td class="dtp-col"><span class="dtp-word">caramāno</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">57</td>
+        <td class="be-word">mahatā</td>
+        <td class="dtp-col"><span class="dtp-word">mahatā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="norm-match">
+        <td class="idx">58</td>
+        <td class="be-word">bhikkhusaṅghena</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhusaṃghena</span></td>
+        <td class="status"><span class="tag tag-norm">≈ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">59</td>
+        <td class="be-word">saddhiṃ</td>
+        <td class="dtp-col"><span class="dtp-word">saddhiṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">60</td>
+        <td class="be-word">pañcamattehi</td>
+        <td class="dtp-col"><span class="dtp-word">pañcamattehi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">61</td>
+        <td class="be-word">bhikkhusatehi</td>
+        <td class="dtp-col"><span class="dtp-word">bhikkhusatehi</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">62</td>
+        <td class="be-word">pāvaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">pāvaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">63</td>
+        <td class="be-word">anuppatto</td>
+        <td class="dtp-col"><span class="dtp-word">anuppatto</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">64</td>
+        <td class="be-word">pāvāyaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">pāvāyaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">65</td>
+        <td class="be-word">viharati</td>
+        <td class="dtp-col"><span class="dtp-word">viharati</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">66</td>
+        <td class="be-word">cundassa</td>
+        <td class="dtp-col"><span class="dtp-word">cundassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">67</td>
+        <td class="be-word">kammāraputtassa</td>
+        <td class="dtp-col"><span class="dtp-word">kammāraputtassa</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">68</td>
+        <td class="be-word">ambavane</td>
+        <td class="dtp-col"><span class="dtp-word">ambavane</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">69</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="dtp-word">ti</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">70</td>
+        <td class="be-word">Atha</td>
+        <td class="dtp-col"><span class="dtp-word">Atha</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">71</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="dtp-word">kho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">72</td>
+        <td class="be-word">pāveyyakā</td>
+        <td class="dtp-col"><span class="dtp-word">pāveyyakā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">73</td>
+        <td class="be-word">mallā</td>
+        <td class="dtp-col"><span class="dtp-word">mallā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">74</td>
+        <td class="be-word">yena</td>
+        <td class="dtp-col"><span class="dtp-word">yena</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">75</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">76</td>
+        <td class="be-word">tenupasaṅkamiṃsu</td>
+        <td class="dtp-col"><span class="dtp-word">tenupasaṅkamiṃsu</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">77</td>
+        <td class="be-word">upasaṅkamitvā</td>
+        <td class="dtp-col"><span class="dtp-word">upasaṅkamitvā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">78</td>
+        <td class="be-word">bhagavantaṃ</td>
+        <td class="dtp-col"><span class="dtp-word">bhagavantaṃ</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">79</td>
+        <td class="be-word">abhivādetvā</td>
+        <td class="dtp-col"><span class="dtp-word">abhivādetvā</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+<div class="sample">
+      <h3>7. Dasuttarasutta (S0103M.MUL10) — heavy abbreviation</h3>
+      <p class="desc">Dasuttara: 470 both_skip + 93 peyyāla out of 6519 tokens</p>
+      <p class="be-range">Be array indices: 0–80 of 24164 total | File: S0103M.MUL10</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="uncovered">
+        <td class="idx">0</td>
+        <td class="be-word">Evaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">1</td>
+        <td class="be-word">me</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">2</td>
+        <td class="be-word">sutaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">3</td>
+        <td class="be-word">ekaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">4</td>
+        <td class="be-word">samayaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">5</td>
+        <td class="be-word">bhagavā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">6</td>
+        <td class="be-word">campāyaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">7</td>
+        <td class="be-word">viharati</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">8</td>
+        <td class="be-word">gaggarāya</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">9</td>
+        <td class="be-word">pokkharaṇiyā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">10</td>
+        <td class="be-word">tīre</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">11</td>
+        <td class="be-word">mahatā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">12</td>
+        <td class="be-word">bhikkhusaṅghena</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">13</td>
+        <td class="be-word">saddhiṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">14</td>
+        <td class="be-word">pañcamattehi</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">15</td>
+        <td class="be-word">bhikkhusatehi</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">16</td>
+        <td class="be-word">Tatra</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">17</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">18</td>
+        <td class="be-word">āyasmā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">19</td>
+        <td class="be-word">sāriputto</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">20</td>
+        <td class="be-word">bhikkhū</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">21</td>
+        <td class="be-word">āmantesi</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">22</td>
+        <td class="be-word">āvuso</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">23</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">24</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">25</td>
+        <td class="be-word">Āvuso</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">26</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">28</td>
+        <td class="be-word">te</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">29</td>
+        <td class="be-word">bhikkhū</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">30</td>
+        <td class="be-word">āyasmato</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">31</td>
+        <td class="be-word">sāriputtassa</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">32</td>
+        <td class="be-word">paccassosuṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">33</td>
+        <td class="be-word">Āyasmā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">34</td>
+        <td class="be-word">sāriputto</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">35</td>
+        <td class="be-word">etadavoca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">36</td>
+        <td class="be-word">Dasuttaraṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">37</td>
+        <td class="be-word">pavakkhāmi</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">38</td>
+        <td class="be-word">dhammaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">39</td>
+        <td class="be-word">nibbānapattiyā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">40</td>
+        <td class="be-word">Dukkhassantakiriyāya</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">41</td>
+        <td class="be-word">sabbaganthappamocanaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="match">
+        <td class="idx">42</td>
+        <td class="be-word">Eko</td>
+        <td class="dtp-col"><span class="dtp-word">Eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">43</td>
+        <td class="be-word">āvuso</td>
+        <td class="dtp-col"><span class="dtp-word">āvuso</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">44</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">45</td>
+        <td class="be-word">bahukāro</td>
+        <td class="dtp-col"><span class="dtp-word">bahukāro</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">46</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">47</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">48</td>
+        <td class="be-word">bhāvetabbo</td>
+        <td class="dtp-col"><span class="dtp-word">bhāvetabbo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">49</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">50</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">51</td>
+        <td class="be-word">pariññeyyo</td>
+        <td class="dtp-col"><span class="dtp-word">pariññeyyo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">52</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">53</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">54</td>
+        <td class="be-word">pahātabbo</td>
+        <td class="dtp-col"><span class="dtp-word">pahātabbo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">55</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">56</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">57</td>
+        <td class="be-word">hānabhāgiyo</td>
+        <td class="dtp-col"><span class="dtp-word">hānabhāgiyo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">58</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">59</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">60</td>
+        <td class="be-word">visesabhāgiyo</td>
+        <td class="dtp-col"><span class="dtp-word">visesabhāgiyo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">61</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">62</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">63</td>
+        <td class="be-word">duppaṭivijjho</td>
+        <td class="dtp-col"><span class="dtp-word">duppaṭivijjho</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">64</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">65</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">66</td>
+        <td class="be-word">uppādetabbo</td>
+        <td class="dtp-col"><span class="dtp-word">uppādetabbo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">67</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">68</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">69</td>
+        <td class="be-word">abhiññeyyo</td>
+        <td class="dtp-col"><span class="dtp-word">abhiññeyyo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">70</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">71</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">72</td>
+        <td class="be-word">sacchikātabbo</td>
+        <td class="dtp-col"><span class="dtp-word">sacchikātabbo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">73</td>
+        <td class="be-word">Ka</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="match">
+        <td class="idx">74</td>
+        <td class="be-word">katamo</td>
+        <td class="dtp-col"><span class="dtp-word">katamo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">75</td>
+        <td class="be-word">eko</td>
+        <td class="dtp-col"><span class="dtp-word">eko</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">76</td>
+        <td class="be-word">dhammo</td>
+        <td class="dtp-col"><span class="dtp-word">dhammo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">77</td>
+        <td class="be-word">bahukāro</td>
+        <td class="dtp-col"><span class="dtp-word">bahukāro</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">78</td>
+        <td class="be-word">Appamādo</td>
+        <td class="dtp-col"><span class="dtp-word">Appamādo</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr><tr class="match">
+        <td class="idx">79</td>
+        <td class="be-word">kusalesu</td>
+        <td class="dtp-col"><span class="dtp-word">kusalesu</span></td>
+        <td class="status"><span class="tag tag-match">✓ nw_match</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+<div class="sample">
+      <h3>8. ปลายพระสูตร — Brahmajāla end (IDH_92)</h3>
+      <p class="desc">End of Brahmajāla — check if NW alignment holds at sutta end</p>
+      <p class="be-range">Be array indices: 27200–27270 of 30936 total | File: S0101M.MUL0</p>
+      <table>
+        <thead><tr>
+          <th>Be idx</th>
+          <th>Be Word (basetext)</th>
+          <th>DTP Word</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody><tr class="uncovered">
+        <td class="idx">27200</td>
+        <td class="be-word">bahiddhā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27201</td>
+        <td class="be-word">Tayidaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27202</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27203</td>
+        <td class="be-word">tathāgato</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27204</td>
+        <td class="be-word">pajānāti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27205</td>
+        <td class="be-word">ime</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27206</td>
+        <td class="be-word">diṭṭhiṭṭhānā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27207</td>
+        <td class="be-word">evaṃgahitā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27208</td>
+        <td class="be-word">evaṃparāmaṭṭhā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27209</td>
+        <td class="be-word">evaṃgatikā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27210</td>
+        <td class="be-word">bhavanti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27211</td>
+        <td class="be-word">evaṃabhisamparāyā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27212</td>
+        <td class="be-word">ti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27213</td>
+        <td class="be-word">Tañca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27214</td>
+        <td class="be-word">tathāgato</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27215</td>
+        <td class="be-word">pajānāti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27216</td>
+        <td class="be-word">tato</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27217</td>
+        <td class="be-word">ca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27218</td>
+        <td class="be-word">uttaritaraṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27219</td>
+        <td class="be-word">pajānāti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27220</td>
+        <td class="be-word">tañca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27221</td>
+        <td class="be-word">pajānanaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27222</td>
+        <td class="be-word">na</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27223</td>
+        <td class="be-word">parāmasati</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27224</td>
+        <td class="be-word">aparāmasato</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27225</td>
+        <td class="be-word">cassa</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27226</td>
+        <td class="be-word">paccattaññeva</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27227</td>
+        <td class="be-word">nibbuti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27228</td>
+        <td class="be-word">viditā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27229</td>
+        <td class="be-word">Vedanānaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27230</td>
+        <td class="be-word">samudayañca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27231</td>
+        <td class="be-word">atthaṅgamañca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27232</td>
+        <td class="be-word">assādañca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27233</td>
+        <td class="be-word">ādīnavañca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27234</td>
+        <td class="be-word">nissaraṇañca</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27235</td>
+        <td class="be-word">yathābhūtaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27236</td>
+        <td class="be-word">viditvā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27237</td>
+        <td class="be-word">anupādāvimutto</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27238</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27239</td>
+        <td class="be-word">tathāgato</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27240</td>
+        <td class="be-word">Ime</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27241</td>
+        <td class="be-word">kho</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27242</td>
+        <td class="be-word">te</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27243</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27244</td>
+        <td class="be-word">dhammā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27245</td>
+        <td class="be-word">gambhīrā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27246</td>
+        <td class="be-word">duddasā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27247</td>
+        <td class="be-word">duranubodhā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27248</td>
+        <td class="be-word">santā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27249</td>
+        <td class="be-word">paṇītā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27250</td>
+        <td class="be-word">atakkāvacarā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27251</td>
+        <td class="be-word">nipuṇā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27252</td>
+        <td class="be-word">paṇḍitavedanīyā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27253</td>
+        <td class="be-word">ye</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27254</td>
+        <td class="be-word">tathāgato</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27255</td>
+        <td class="be-word">sayaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27256</td>
+        <td class="be-word">abhiññā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27257</td>
+        <td class="be-word">sacchikatvā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27258</td>
+        <td class="be-word">pavedeti</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27259</td>
+        <td class="be-word">yehi</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27260</td>
+        <td class="be-word">tathāgatassa</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27261</td>
+        <td class="be-word">yathābhuccaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27262</td>
+        <td class="be-word">vaṇṇaṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27263</td>
+        <td class="be-word">sammā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27264</td>
+        <td class="be-word">vadamānā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27265</td>
+        <td class="be-word">vadeyyuṃ</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27266</td>
+        <td class="be-word">Santi</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27267</td>
+        <td class="be-word">bhikkhave</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27268</td>
+        <td class="be-word">eke</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr><tr class="uncovered">
+        <td class="idx">27269</td>
+        <td class="be-word">samaṇabrāhmaṇā</td>
+        <td class="dtp-col"><span class="uncovered-mark">—</span></td>
+        <td class="status"><span class="tag tag-uncovered">uncovered</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+
+<h2>📝 Top Genuine Variants (nw_mismatch)</h2>
+<p class="desc">These are words where NW paired DTP↔Be but the words differ — genuine textual differences between editions.</p>
+<table>
+  <thead><tr><th>DTP Word</th><th>Be Word</th><th>Occurrences</th></tr></thead>
+  <tbody><tr>
+      <td class="dtp-cell">loke</td>
+      <td class="be-cell">loke…</td>
+      <td class="num">95</td>
+    </tr><tr>
+      <td class="dtp-cell">manussadhammā</td>
+      <td class="be-cell">uttarimanussadhammā</td>
+      <td class="num">44</td>
+    </tr><tr>
+      <td class="dtp-cell">hoti</td>
+      <td class="be-cell">hoti…</td>
+      <td class="num">41</td>
+    </tr><tr>
+      <td class="dtp-cell">hoti</td>
+      <td class="be-cell">hoti…pe…</td>
+      <td class="num">27</td>
+    </tr><tr>
+      <td class="dtp-cell">sevitabbaṃpi</td>
+      <td class="be-cell">sevitabbampi</td>
+      <td class="num">23</td>
+    </tr><tr>
+      <td class="dtp-cell">cakkavattī</td>
+      <td class="be-cell">cakkavattī…pe…</td>
+      <td class="num">20</td>
+    </tr><tr>
+      <td class="dtp-cell">nohidaṃ</td>
+      <td class="be-cell">hidaṃ</td>
+      <td class="num">16</td>
+    </tr><tr>
+      <td class="dtp-cell">Ayaṃpi</td>
+      <td class="be-cell">Ayampi</td>
+      <td class="num">15</td>
+    </tr><tr>
+      <td class="dtp-cell">bhavissanti</td>
+      <td class="be-cell">bhavissanti…</td>
+      <td class="num">15</td>
+    </tr><tr>
+      <td class="dtp-cell">labhati</td>
+      <td class="be-cell">labhati…</td>
+      <td class="num">14</td>
+    </tr><tr>
+      <td class="dtp-cell">sukhadukkhaṃ</td>
+      <td class="be-cell">sukhadukkhaṃ…</td>
+      <td class="num">14</td>
+    </tr><tr>
+      <td class="dtp-cell">sañjānāti</td>
+      <td class="be-cell">sañjānāti…</td>
+      <td class="num">14</td>
+    </tr><tr>
+      <td class="dtp-cell">gotamo</td>
+      <td class="be-cell">gotamo…</td>
+      <td class="num">13</td>
+    </tr><tr>
+      <td class="dtp-cell">saṅgāyitabbaṃ</td>
+      <td class="be-cell">saṅgāyitabbaṃ…pe…</td>
+      <td class="num">13</td>
+    </tr><tr>
+      <td class="dtp-cell">vā</td>
+      <td class="be-cell">vā…pe…</td>
+      <td class="num">12</td>
+    </tr><tr>
+      <td class="dtp-cell">dibbānañca</td>
+      <td class="be-cell">dibbānaṃ</td>
+      <td class="num">12</td>
+    </tr><tr>
+      <td class="dtp-cell">catutthajjhānaṃ</td>
+      <td class="be-cell">jhānaṃ</td>
+      <td class="num">11</td>
+    </tr><tr>
+      <td class="dtp-cell">ca</td>
+      <td class="be-cell">ca…</td>
+      <td class="num">11</td>
+    </tr><tr>
+      <td class="dtp-cell">bhikkhu</td>
+      <td class="be-cell">bhikkhu…pe…</td>
+      <td class="num">11</td>
+    </tr><tr>
+      <td class="dtp-cell">kaṭattā</td>
+      <td class="be-cell">kaṭattā…pe…</td>
+      <td class="num">11</td>
+    </tr><tr>
+      <td class="dtp-cell">satthavāse</td>
+      <td class="be-cell">satthavāse…</td>
+      <td class="num">10</td>
+    </tr><tr>
+      <td class="dtp-cell">cetasā</td>
+      <td class="be-cell">cetasā…pe…</td>
+      <td class="num">10</td>
+    </tr><tr>
+      <td class="dtp-cell">bhāvessanti</td>
+      <td class="be-cell">bhāvessanti…</td>
+      <td class="num">10</td>
+    </tr><tr>
+      <td class="dtp-cell">parammaraṇā</td>
+      <td class="be-cell">maraṇā</td>
+      <td class="num">10</td>
+    </tr><tr>
+      <td class="dtp-cell">ekaṃpi</td>
+      <td class="be-cell">ekampi</td>
+      <td class="num">9</td>
+    </tr><tr>
+      <td class="dtp-cell">asevitabbaṃpīti</td>
+      <td class="be-cell">asevitabbampīti</td>
+      <td class="num">9</td>
+    </tr><tr>
+      <td class="dtp-cell">upāsako</td>
+      <td class="be-cell">upāsako…</td>
+      <td class="num">9</td>
+    </tr><tr>
+      <td class="dtp-cell">ahaṃpi</td>
+      <td class="be-cell">ahampi</td>
+      <td class="num">9</td>
+    </tr><tr>
+      <td class="dtp-cell">hi</td>
+      <td class="be-cell">kathañhi</td>
+      <td class="num">9</td>
+    </tr><tr>
+      <td class="dtp-cell">āgametu</td>
+      <td class="be-cell">āgametu…</td>
+      <td class="num">9</td>
+    </tr></tbody>
+</table>
+
+<h2>⚡ Iti-Sandhi Resolution</h2>
+
+<div class="note-box">
+  <h3>What is iti-sandhi?</h3>
+  <p>In Pali, the quotation particle <strong>iti</strong> often merges with the preceding word through sandhi:</p>
+  <p>• <code>gotamaṃ + iti → gotamanti</code> (nasal ṃ → n before iti)</p>
+  <p>• <code>sarīraṃ + iti → sarīranti</code></p>
+  <p>• <code>sambodhiyaṃ + iti → sambodhiyanti</code></p>
+  <p style="margin-top:8px"><strong>The problem:</strong> DTP keeps these as compound tokens (<code>gotamanti</code>), while Be splits them into base (<code>gotama</code>) + particle (<code>nti</code>). This is a <strong>1-to-2 tokenization difference</strong>, not a genuine textual variant.</p>
+  <p style="margin-top:8px"><strong>The fix:</strong> Post-NW sandhi resolution detects the pattern and tags these as <code>nw_sandhi</code> with links to both Be tokens (<code>be_token_id</code> → particle, <code>be_sandhi_base_id</code> → base word).</p>
+</div>
+
+
+<h3>Top Sandhi Compounds</h3>
+<table>
+  <thead><tr><th>DTP Compound</th><th>Be Base</th><th>Be Particle</th><th>Occurrences</th></tr></thead>
+  <tbody><tr>
+    <td class="sandhi" style="color:#f0883e">cittanti</td>
+    <td class="be-cell">citta</td>
+    <td class="be-cell">nti</td>
+    <td class="num">71</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">sarīranti</td>
+    <td class="be-cell">sarīra</td>
+    <td class="be-cell">nti</td>
+    <td class="num">46</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">vāti</td>
+    <td class="be-cell">vā</td>
+    <td class="be-cell">ti</td>
+    <td class="num">39</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">moghamaññanti</td>
+    <td class="be-cell">moghamañña</td>
+    <td class="be-cell">nti</td>
+    <td class="num">26</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">sampajjatīti</td>
+    <td class="be-cell">sampajjatī</td>
+    <td class="be-cell">ti</td>
+    <td class="num">20</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">viññāṇanti</td>
+    <td class="be-cell">viññāṇa</td>
+    <td class="be-cell">nti</td>
+    <td class="num">20</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">gotamoti</td>
+    <td class="be-cell">gotamo</td>
+    <td class="be-cell">ti</td>
+    <td class="num">18</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">cāti</td>
+    <td class="be-cell">cā</td>
+    <td class="be-cell">ti</td>
+    <td class="num">18</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">akusalanti</td>
+    <td class="be-cell">akusala</td>
+    <td class="be-cell">nti</td>
+    <td class="num">15</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">devamanussānanti</td>
+    <td class="be-cell">devamanussāna</td>
+    <td class="be-cell">nti</td>
+    <td class="num">15</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">kusalanti</td>
+    <td class="be-cell">kusala</td>
+    <td class="be-cell">nti</td>
+    <td class="num">14</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">sambodhiyanti</td>
+    <td class="be-cell">sambodhiya</td>
+    <td class="be-cell">nti</td>
+    <td class="num">14</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">anagāriyanti</td>
+    <td class="be-cell">anagāriya</td>
+    <td class="be-cell">nti</td>
+    <td class="num">11</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">vacananti</td>
+    <td class="be-cell">vacana</td>
+    <td class="be-cell">nti</td>
+    <td class="num">10</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">vuṭṭhātunti</td>
+    <td class="be-cell">vuṭṭhātu</td>
+    <td class="be-cell">nti</td>
+    <td class="num">9</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">bhattanti</td>
+    <td class="be-cell">bhatta</td>
+    <td class="be-cell">nti</td>
+    <td class="num">9</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">paññapetunti</td>
+    <td class="be-cell">paññapetu</td>
+    <td class="be-cell">nti</td>
+    <td class="num">9</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">āpajjeyyāti</td>
+    <td class="be-cell">āpajjeyyā</td>
+    <td class="be-cell">ti</td>
+    <td class="num">8</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">sassatisamanti</td>
+    <td class="be-cell">sassatisama</td>
+    <td class="be-cell">nti</td>
+    <td class="num">7</td>
+  </tr>
+<tr>
+    <td class="sandhi" style="color:#f0883e">uttarikaraṇīyanti</td>
+    <td class="be-cell">uttarikaraṇīya</td>
+    <td class="be-cell">nti</td>
+    <td class="num">7</td>
+  </tr>
+  </tbody>
+</table>
+
+
+<h2>📝 Algorithm Notes</h2>
+
+<div class="note-box">
+  <h3>v4.2 Algorithm: Needleman-Wunsch + sandhi + local NW for EBT</h3>
+  <p>Each sutta is split into <strong>sub-segments</strong> by peyyāla (<code>...pa...</code>) markers.</p>
+  <p>Peyyāla uses <strong>forward resync</strong> (window 10,000) to find next DTP word in Be — sets accurate boundaries.</p>
+  <p>Each sub-segment is then aligned using <strong>Needleman-Wunsch</strong> (MATCH=+2, MISMATCH=−1, GAP=−1). EBT words are excluded from main NW.</p>
+  <p><strong>Post-NW sandhi resolution</strong> detects iti-sandhi patterns: DTP compound ending in <code>nti</code>/<code>ti</code> matched to Be standalone particle, with Be base word as orphan insert. Reclassifies from <code>nw_mismatch</code> → <code>nw_sandhi</code> and links both Be tokens.</p>
+  <p><strong>Local NW for EBT</strong>: EBT expanded words are aligned against unmatched Be "insert" words (from main NW) in the same position range → <code>ebt_match</code>/<code>ebt_mismatch</code>/<code>ebt_delete</code>.</p>
+  <p>NW properly handles: <strong>reorderings</strong> (DTP lists sīla items differently), <strong>insertions/deletions</strong> (Be compound tokens like <code>loko…pe…</code>), <strong>genuine variants</strong> (DTP <code>manussadhammā</code> vs Be <code>uttarimanussadhammā</code>).</p>
+  <p><code>*</code> rows always consume 0 Be words (both editions abbreviate).</p>
+</div>
+
+</body>
+</html>
